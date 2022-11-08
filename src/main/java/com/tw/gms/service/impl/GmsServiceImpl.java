@@ -3,6 +3,7 @@ package com.tw.gms.service.impl;
 import com.tw.gms.exception.InvalidTokenException;
 import com.tw.gms.service.GmsService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class GmsServiceImpl implements GmsService {
     }
 
     private String extractToken(String authorization) throws InvalidTokenException {
-        if (authorization.contains("Bearer")) {
+        if (null!=authorization && authorization.startsWith("Bearer ")) {
             return authorization.substring(7);
         } else {
             throw new InvalidTokenException("invalid authorization header " + authorization);
