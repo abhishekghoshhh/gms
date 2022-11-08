@@ -3,6 +3,7 @@ package com.tw.gms.service.impl;
 import com.tw.gms.exception.InvalidTokenException;
 import com.tw.gms.service.GmsService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -21,8 +22,7 @@ public class GmsServiceImpl implements GmsService {
         // case 2
         // there is no group list given in the request
         // return
-        return String.join("\n", groups) + "\n";
-
+        return CollectionUtils.isEmpty(groups)?"demo-group-1\ndemo-group-2\n":String.join("\n", groups) + "\n";
     }
 
     private String extractToken(String authorization) throws InvalidTokenException {
