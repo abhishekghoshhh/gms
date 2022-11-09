@@ -1,2 +1,7 @@
-server:
-  port: 8081
+spring:
+  profiles:
+    default: local
+    group:
+      "local": "dev"
+      "prod":"prod"
+

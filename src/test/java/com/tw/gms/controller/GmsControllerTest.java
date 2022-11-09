@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -28,9 +27,10 @@ public class GmsControllerTest {
     @Test
     void isAMember() throws Exception {
         String authorization = "Bearer abcde";
-        when(gmsService.isAMember(authorization, List.of("group1", "group2"))).thenReturn("group1\ngroup2\n");
+        when(gmsService.isAMember(authorization, "token", List.of("group1", "group2"))).thenReturn("group1\ngroup2\n");
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", authorization);
+        headers.set("token", "token");
         mockMvc.perform(get("/gmsService/search")
                         .param("group", "group1")
                         .param("group", "group2")

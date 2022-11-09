@@ -1,0 +1,8 @@
+server:
+  port: 8081
+
+iam:
+  authorization: Basic Y2xpZW50OnNlY3JldA==
+  introspect:
+    host: localhost:8080
+    url: /introspect
