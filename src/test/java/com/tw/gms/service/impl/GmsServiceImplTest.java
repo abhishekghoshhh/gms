@@ -25,7 +25,7 @@ public class GmsServiceImplTest {
     public void shouldCheckIfUserBelongsToTheGivenGroups() throws InvalidTokenException {
         List<String> groups = List.of("group1", "group2");
         String expectedGroup = "group1\ngroup2\n";
-        String response = gmsServiceImpl.isAMember("Bearer abcdefg", "token", groups);
+        String response = gmsServiceImpl.isAMember("token", groups);
         assertEquals(expectedGroup, response);
     }
 }

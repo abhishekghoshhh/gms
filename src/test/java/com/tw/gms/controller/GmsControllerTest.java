@@ -26,10 +26,8 @@ public class GmsControllerTest {
 
     @Test
     void isAMember() throws Exception {
-        String authorization = "Bearer abcde";
-        when(gmsService.isAMember(authorization, "token", List.of("group1", "group2"))).thenReturn("group1\ngroup2\n");
+        when(gmsService.isAMember( "token", List.of("group1", "group2"))).thenReturn("group1\ngroup2\n");
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", authorization);
         headers.set("token", "token");
         mockMvc.perform(get("/gmsService/search")
                         .param("group", "group1")

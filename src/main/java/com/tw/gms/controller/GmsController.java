@@ -19,9 +19,8 @@ public class GmsController {
 
     @GetMapping(value = "/gmsService/search", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> isAMember
-            (@RequestHeader(value = "Authorization", required = false) String authorization,
-             @RequestHeader(value = "token") String token,
+            (@RequestHeader(value = "token") String token,
              @RequestParam(name = "group", required = false) List<String> groups) throws InvalidTokenException {
-        return ResponseEntity.ok(gmsService.isAMember(authorization,token, groups));
+        return ResponseEntity.ok(gmsService.isAMember(token, groups));
     }
 }

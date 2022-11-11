@@ -3,5 +3,5 @@ spring:
     default: local
     group:
       "local": "dev"
-      "prod":"prod"
+      "prod": "prod"
 
