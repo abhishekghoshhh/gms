@@ -22,22 +22,24 @@ public class ProfileFetcher {
     @Value("${iam.clientSecret}")
     private String clientSecret;
 
+    @Value("${iam.introspect.host}")
+    private String iamHost;
+
+    @Value("${iam.introspect.path:/introspect}")
+    private String introspectApi;
+
     @Autowired
     ResilientRestClient resilientRestClient;
 
     public ProfileResponse fetch(String token) {
-        URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/introspect").build().toUri();
-
+        URI uri = UriComponentsBuilder.fromHttpUrl(iamHost + introspectApi).build().toUri();
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        headers.setBasicAuth(clientId,clientSecret);
-
+        headers.setBasicAuth(clientId, clientSecret);
         MultiValueMap<String, String> request = new LinkedMultiValueMap<String, String>();
         request.add("token", token);
-
-        HttpEntity<?> httpEntity = new HttpEntity<>(request,headers);
+        HttpEntity<?> httpEntity = new HttpEntity<>(request, headers);
         ResponseEntity<ProfileResponse> responseEntity = resilientRestClient.exchange("default", uri, HttpMethod.POST, httpEntity, ProfileResponse.class);
         return responseEntity.getBody();
     }
