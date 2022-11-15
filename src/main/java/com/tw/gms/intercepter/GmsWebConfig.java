@@ -8,10 +8,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class GmsWebConfig implements WebMvcConfigurer {
     @Autowired
-    GmsIntercepter gmsIntercepter;
+    GmsInterceptor gmsInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(gmsIntercepter).addPathPatterns("/**");
+        registry.addInterceptor(gmsInterceptor).addPathPatterns("/**");
     }
 }

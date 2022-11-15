@@ -40,7 +40,8 @@ public class ProfileFetcher {
         MultiValueMap<String, String> request = new LinkedMultiValueMap<String, String>();
         request.add("token", token);
         HttpEntity<?> httpEntity = new HttpEntity<>(request, headers);
-        ResponseEntity<ProfileResponse> responseEntity = resilientRestClient.exchange("default", uri, HttpMethod.POST, httpEntity, ProfileResponse.class);
+        ResponseEntity<ProfileResponse> responseEntity = resilientRestClient
+                .exchange("default", uri, HttpMethod.POST, httpEntity, ProfileResponse.class);
         return responseEntity.getBody();
     }
 }

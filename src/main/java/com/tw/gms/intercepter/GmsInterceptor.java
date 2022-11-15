@@ -14,9 +14,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 @Component
-public class GmsIntercepter implements HandlerInterceptor {
+public class GmsInterceptor implements HandlerInterceptor {
 
-    Logger log = LoggerFactory.getLogger(GmsIntercepter.class);
+    Logger log = LoggerFactory.getLogger(GmsInterceptor.class);
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)

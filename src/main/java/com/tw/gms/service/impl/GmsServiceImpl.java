@@ -10,6 +10,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class GmsServiceImpl implements GmsService {
@@ -26,13 +27,10 @@ public class GmsServiceImpl implements GmsService {
             return String.join("\n", profileResponse.getGroups()) + "\n";
         } else {
             Set<String> profileGroups = new HashSet<>(profileResponse.getGroups());
-            StringBuilder groupsResponseString = new StringBuilder();
-            for (String group : groups) {
-                if (profileGroups.contains(group)) {
-                    groupsResponseString.append(group).append("\n");
-                }
-            }
-            return groupsResponseString.toString();
+            return groups.stream()
+                    .filter(profileGroups::contains)
+                    .collect(Collectors.joining("\n"))
+                    .concat("\n");
         }
     }
 
