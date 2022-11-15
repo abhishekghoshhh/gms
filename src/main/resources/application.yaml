@@ -5,3 +5,15 @@ spring:
       "local": "dev"
       "prod": "prod"
 
+resilience4j:
+  bulkhead:
+    instances:
+      default:
+        maxWaitDuration: 1000ms
+        maxConcurrentCall: 2
+  thread-pool-bulkhead:
+    instances:
+      default:
+        maxThreadPoolSize: 1
+        coreThreadPoolSize: 1
+        queueCapacity: 1

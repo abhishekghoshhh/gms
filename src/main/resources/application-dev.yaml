@@ -1,6 +1,14 @@
 server:
   port: 8081
 
+#server:
+#  port: 443
+#  ssl:
+#    key-store: keystore.p12
+#    key-store-password: springboot
+#    keyStoreType: PKCS12
+#    keyAlias: tomcat
+
 iam:
   scim:
     host: http://127.0.0.1:8080
@@ -10,3 +18,34 @@ template:
   withSsl: false
   connectionTimeout: 3000
   readTimeout: 3000
+
+#resilience4j:
+#  bulkhead:
+#    instances:
+#      iam-profile:
+#        maxWaitDuration: 1ms
+#        maxConcurrentCall: 2
+#  thread-pool-bulkhead:
+#    instances:
+#      iam-profile:
+#        maxThreadPoolSize: 1
+#        coreThreadPoolSize: 1
+#        queueCapacity: 1
+
+rest-template:
+  connectionRequestTimeout: 2
+  connectTimeout: 2
+  readTimeout: 2
+
+resilience4j.timelimiter:
+  instances:
+    iam-profile:
+      timeoutDuration: 200ms
+      cancelRunningFuture: true
+resilience4j.circuitbreaker:
+  instances:
+    iam-profile:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      permittedNumberOfCallsInHalfOpenState: 5
+      slidingWindowType: TIME_BASED

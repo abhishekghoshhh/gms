@@ -1,5 +1,6 @@
 package com.tw.gms.service.impl;
 
+import com.tw.gms.connector.RestCallException;
 import com.tw.gms.exception.InvalidTokenException;
 import com.tw.gms.model.Group;
 import com.tw.gms.model.ProfileResponse;
@@ -26,7 +27,7 @@ public class GmsServiceImplTest {
 
 
     @Test
-    public void shouldCheckIfUserBelongsToNoGroup() throws InvalidTokenException {
+    public void shouldCheckIfUserBelongsToNoGroup() throws InvalidTokenException, RestCallException {
         List<String> groups = List.of("group1", "group2");
         ProfileResponse profileResponse = new ProfileResponse(null);
         String token = "token";
@@ -36,7 +37,7 @@ public class GmsServiceImplTest {
     }
 
     @Test
-    public void shouldCheckIfNoGroupsGivenInRequest() throws InvalidTokenException {
+    public void shouldCheckIfNoGroupsGivenInRequest() throws InvalidTokenException, RestCallException {
         List<String> groups = new ArrayList<>();
         ProfileResponse profileResponse = new ProfileResponse(List.of(new Group("group1"), new Group("group2")));
         String token = "token";
@@ -46,7 +47,7 @@ public class GmsServiceImplTest {
     }
 
     @Test
-    public void shouldCheckIfUserBelongsToTheGivenGroups() throws InvalidTokenException {
+    public void shouldCheckIfUserBelongsToTheGivenGroups() throws InvalidTokenException, RestCallException {
         List<String> groups = List.of("group1", "group3", "group5");
         ProfileResponse profileResponse = new ProfileResponse(List.of(new Group("group1"), new Group("group2"), new Group("group3"), new Group("group4")));
         String token = "token";

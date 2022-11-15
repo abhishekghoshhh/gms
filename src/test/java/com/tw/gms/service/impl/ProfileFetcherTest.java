@@ -1,6 +1,7 @@
 package com.tw.gms.service.impl;
 
 import com.tw.gms.connector.ResilientRestClient;
+import com.tw.gms.connector.RestCallException;
 import com.tw.gms.model.ProfileResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +30,7 @@ public class ProfileFetcherTest {
     ResilientRestClient resilientRestClient;
 
     @Test
-    public void fetch() throws NoSuchFieldException {
+    public void fetch() throws NoSuchFieldException, RestCallException {
         ResponseEntity<ProfileResponse> response = ResponseEntity.ok(new ProfileResponse( null));
         setFieldByReflection(ProfileFetcher.class, profileFetcher, "iamHost", "http://127.0.0.1:8080");
         setFieldByReflection(ProfileFetcher.class, profileFetcher, "scimProfileApi", "/scim/me");
