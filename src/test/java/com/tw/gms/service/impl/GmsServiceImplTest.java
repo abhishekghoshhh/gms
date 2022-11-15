@@ -1,6 +1,7 @@
 package com.tw.gms.service.impl;
 
 import com.tw.gms.exception.InvalidTokenException;
+import com.tw.gms.model.Group;
 import com.tw.gms.model.ProfileResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +28,7 @@ public class GmsServiceImplTest {
     @Test
     public void shouldCheckIfUserBelongsToNoGroup() throws InvalidTokenException {
         List<String> groups = List.of("group1", "group2");
-        ProfileResponse profileResponse = new ProfileResponse(true, null);
+        ProfileResponse profileResponse = new ProfileResponse(null);
         String token = "token";
         String expectedGroup = "";
         Mockito.when(profileFetcher.fetch(token)).thenReturn(profileResponse);
@@ -37,7 +38,7 @@ public class GmsServiceImplTest {
     @Test
     public void shouldCheckIfNoGroupsGivenInRequest() throws InvalidTokenException {
         List<String> groups = new ArrayList<>();
-        ProfileResponse profileResponse = new ProfileResponse(true, List.of("group1", "group2"));
+        ProfileResponse profileResponse = new ProfileResponse(List.of(new Group("group1"), new Group("group2")));
         String token = "token";
         Mockito.when(profileFetcher.fetch(token)).thenReturn(profileResponse);
         String expectedGroup = "group1\ngroup2\n";
@@ -46,8 +47,8 @@ public class GmsServiceImplTest {
 
     @Test
     public void shouldCheckIfUserBelongsToTheGivenGroups() throws InvalidTokenException {
-        List<String> groups = List.of("group1", "group3","group5");
-        ProfileResponse profileResponse = new ProfileResponse(true, List.of("group1", "group2","group3","group4"));
+        List<String> groups = List.of("group1", "group3", "group5");
+        ProfileResponse profileResponse = new ProfileResponse(List.of(new Group("group1"), new Group("group2"), new Group("group3"), new Group("group4")));
         String token = "token";
         Mockito.when(profileFetcher.fetch(token)).thenReturn(profileResponse);
         String expectedGroup = "group1\ngroup3\n";

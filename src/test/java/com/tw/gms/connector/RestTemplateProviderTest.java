@@ -12,13 +12,16 @@ public class RestTemplateProviderTest {
     @InjectMocks
     RestTemplateProvider restTemplateProvider;
 
+
     @Test
     public void templateWithSSL() {
-        assertNotNull(restTemplateProvider.templateWithSSL());
+        RestTemplateProperties restTemplateProperties = new RestTemplateProperties();
+        assertNotNull(restTemplateProvider.templateWithSSL(restTemplateProperties));
     }
 
     @Test
     public void templateWithoutSSL() {
-        assertNotNull(restTemplateProvider.templateWithoutSSL());
+        RestTemplateProperties restTemplateProperties = new RestTemplateProperties();
+        assertNotNull(restTemplateProvider.templateWithoutSSL(restTemplateProperties));
     }
 }

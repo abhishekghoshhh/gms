@@ -30,11 +30,9 @@ public class ProfileFetcherTest {
 
     @Test
     public void fetch() throws NoSuchFieldException {
-        ResponseEntity<ProfileResponse> response = ResponseEntity.ok(new ProfileResponse(true, null));
-        setFieldByReflection(ProfileFetcher.class, profileFetcher, "clientId", "clientId");
-        setFieldByReflection(ProfileFetcher.class, profileFetcher, "clientSecret", "clientSecret");
+        ResponseEntity<ProfileResponse> response = ResponseEntity.ok(new ProfileResponse( null));
         setFieldByReflection(ProfileFetcher.class, profileFetcher, "iamHost", "http://127.0.0.1:8080");
-        setFieldByReflection(ProfileFetcher.class, profileFetcher, "introspectApi", "/introspect");
+        setFieldByReflection(ProfileFetcher.class, profileFetcher, "scimProfileApi", "/scim/me");
         when(resilientRestClient.exchange(anyString(), any(URI.class), any(HttpMethod.class), any(HttpEntity.class), eq(ProfileResponse.class))).thenReturn(response);
         assertEquals(response.getBody(), profileFetcher.fetch("token"));
     }

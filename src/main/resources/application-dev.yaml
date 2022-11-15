@@ -2,11 +2,9 @@ server:
   port: 8081
 
 iam:
-  clientId: 59710622-6c26-4e38-9633-1680e66abfe5
-  clientSecret: ANPTPaTeHXbeJcXTdmcFR1x8Fbi2OTbvGbwb7BVMBB14iOdcSKngmwhzaBYclKbn6Gk1Hv8wyQlVwygFv2FPFrY
-  introspect:
+  scim:
     host: http://127.0.0.1:8080
-    path: /introspect
+    path: /scim/Me
 
 template:
   withSsl: false

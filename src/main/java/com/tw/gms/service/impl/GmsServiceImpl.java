@@ -24,13 +24,14 @@ public class GmsServiceImpl implements GmsService {
         if (CollectionUtils.isEmpty(profileResponse.getGroups())) {
             return EMPTY_STRING;
         } else if (CollectionUtils.isEmpty(groups)) {
-            return String.join("\n", profileResponse.getGroups()) + "\n";
-        } else {
-            Set<String> profileGroups = new HashSet<>(profileResponse.getGroups());
-            return groups.stream()
-                    .filter(profileGroups::contains)
-                    .collect(Collectors.joining("\n"))
+            return String.join("\n", profileResponse.groupNamesList())
                     .concat("\n");
+        } else {
+            Set<String> profileGroups = new HashSet<>(profileResponse.groupNamesList());
+            List<String> filteredGroups = groups.stream()
+                    .filter(profileGroups::contains)
+                    .collect(Collectors.toList());
+            return filteredGroups.isEmpty() ? EMPTY_STRING : String.join("\n", filteredGroups).concat("\n");
         }
     }
 
