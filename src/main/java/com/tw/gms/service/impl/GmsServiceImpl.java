@@ -1,7 +1,6 @@
 package com.tw.gms.service.impl;
 
 import com.tw.gms.connector.RestCallException;
-import com.tw.gms.exception.InvalidTokenException;
 import com.tw.gms.model.ProfileResponse;
 import com.tw.gms.service.GmsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,7 @@ public class GmsServiceImpl implements GmsService {
     ProfileFetcher profileFetcher;
 
     @Override
-    public String isAMember(String token, List<String> groups) throws InvalidTokenException, RestCallException {
+    public String isAMember(String token, List<String> groups) throws RestCallException {
         ProfileResponse profileResponse = profileFetcher.fetch(token);
         if (CollectionUtils.isEmpty(profileResponse.getGroups())) {
             return EMPTY_STRING;

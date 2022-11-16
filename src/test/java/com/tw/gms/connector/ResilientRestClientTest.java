@@ -5,6 +5,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -26,13 +28,19 @@ public class ResilientRestClientTest {
     @Test
     public void exchange() throws Exception {
         RestTemplate restTemplate = Mockito.mock(RestTemplate.class);
-//        ResilientRestClient resilientRestClient = new ResilientRestClient("false", restTemplate, restTemplate);
+        CircuitBreakerFactory circuitBreakerFactory = Mockito.mock(CircuitBreakerFactory.class);
+        CircuitBreaker circuitBreaker = Mockito.mock(CircuitBreaker.class);
+
         setFieldByReflection(ResilientRestClient.class, resilientRestClient, "restTemplate", restTemplate);
+        setFieldByReflection(ResilientRestClient.class, resilientRestClient, "circuitBreakerFactory", circuitBreakerFactory);
         URI uri = URI.create("http://localhost");
         HttpMethod method = HttpMethod.POST;
         HttpEntity<?> entity = new HttpEntity<>(new LinkedMultiValueMap<>());
         ResponseEntity<String> response = ResponseEntity.ok("Hello world");
-        Mockito.when(restTemplate.exchange(uri, method, entity, String.class)).thenReturn(response);
+
+        Mockito.when(circuitBreakerFactory.create(Mockito.anyString())).thenReturn(circuitBreaker);
+        Mockito.when(circuitBreaker.run(Mockito.any(),Mockito.any())).thenReturn(response);
+//        Mockito.when(restTemplate.exchange(uri, method, entity, String.class)).thenReturn(response);
         assertEquals(response, resilientRestClient.exchange("default", uri, method, entity, String.class));
     }
 

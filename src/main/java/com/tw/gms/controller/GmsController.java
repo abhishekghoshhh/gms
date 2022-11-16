@@ -1,7 +1,6 @@
 package com.tw.gms.controller;
 
 import com.tw.gms.connector.RestCallException;
-import com.tw.gms.exception.InvalidTokenException;
 import com.tw.gms.service.GmsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -21,7 +20,7 @@ public class GmsController {
     @GetMapping(value = "/gmsService/search", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> isAMember
             (@RequestHeader(value = "token") String token,
-             @RequestParam(name = "group", required = false) List<String> groups) throws InvalidTokenException, RestCallException {
+             @RequestParam(name = "group", required = false) List<String> groups) throws RestCallException {
         return ResponseEntity.ok(gmsService.isAMember(token, groups));
     }
 }

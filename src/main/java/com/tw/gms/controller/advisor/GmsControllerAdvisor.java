@@ -1,7 +1,6 @@
 package com.tw.gms.controller.advisor;
 
-import com.tw.gms.exception.InvalidTokenException;
-import org.springframework.http.HttpStatus;
+import com.tw.gms.connector.RestCallException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -11,10 +10,17 @@ import javax.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
 public class GmsControllerAdvisor extends ResponseEntityExceptionHandler {
-
-    @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity handleCityNotFoundException(
-            InvalidTokenException ex, HttpServletRequest request) {
-        return ResponseEntity.badRequest().build();
+    @ExceptionHandler(RestCallException.class)
+    public ResponseEntity<ErrorResponse> handleRestCallException(
+            RestCallException ex, HttpServletRequest request) {
+        return ResponseEntity
+                .status(ex.getHttpStatus())
+                .build();
+//                .body(new ErrorResponse(
+//                        ex.getMessage(),
+//                        ex.getHttpStatus().value(),
+//                        ex.getDescription())
+//                );
     }
+
 }
