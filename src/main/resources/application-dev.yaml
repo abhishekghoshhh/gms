@@ -49,3 +49,8 @@ resilience4j.circuitbreaker:
       slidingWindowSize: 10
       permittedNumberOfCallsInHalfOpenState: 5
       slidingWindowType: TIME_BASED
+
+logging:
+  level:
+    root: INFO
+    com.tw.gms: DEBUG

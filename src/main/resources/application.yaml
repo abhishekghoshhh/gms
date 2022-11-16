@@ -18,3 +18,5 @@ resilience4j.circuitbreaker:
       slidingWindowSize: 20
       permittedNumberOfCallsInHalfOpenState: 10
       slidingWindowType: TIME_BASED
+
+logging.pattern.console: "%d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %highlight(%level) %logger.%M|%X{uuid}|%X{uri}|%X{method}|%msg%n"
