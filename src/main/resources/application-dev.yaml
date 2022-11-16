@@ -33,9 +33,9 @@ template:
 #        queueCapacity: 1
 
 rest-template:
-  connectionRequestTimeout: 2
-  connectTimeout: 2
-  readTimeout: 2
+  connectionRequestTimeout: 200
+  connectTimeout: 200
+  readTimeout: 200
 
 resilience4j.timelimiter:
   instances:
