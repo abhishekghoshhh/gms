@@ -2,7 +2,6 @@ package com.tw.gms.service.impl;
 
 import com.tw.gms.connector.ResilientRestClient;
 import com.tw.gms.connector.RestCallException;
-import com.tw.gms.model.Group;
 import com.tw.gms.model.ProfileResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
