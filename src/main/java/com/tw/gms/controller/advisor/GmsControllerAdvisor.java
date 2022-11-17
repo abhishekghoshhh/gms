@@ -22,5 +22,4 @@ public class GmsControllerAdvisor extends ResponseEntityExceptionHandler {
 //                        ex.getDescription())
 //                );
     }
-
 }

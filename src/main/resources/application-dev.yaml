@@ -1,18 +1,17 @@
 server:
-  port: 8081
-
-#server:
-#  port: 443
-#  ssl:
-#    key-store: keystore.p12
-#    key-store-password: springboot
-#    keyStoreType: PKCS12
-#    keyAlias: tomcat
+  port: 443
+  ssl:
+    key-store: classpath:springboot.p12
+    key-store-password: password
+    key-store-type: pkcs12
+    key-alias: springboot
+    key-password: password
 
 iam:
   scim:
     host: http://127.0.0.1:8080
     path: /scim/Me
+
 #resilience4j:
 #  bulkhead:
 #    instances:
