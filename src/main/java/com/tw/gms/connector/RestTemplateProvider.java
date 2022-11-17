@@ -1,49 +1,41 @@
 package com.tw.gms.connector;
 
-import org.apache.http.client.config.RequestConfig;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.http.HttpClient;
+import javax.net.ssl.SSLContext;
 
 @Configuration
 public class RestTemplateProvider {
 
-    @Bean
-//    @Qualifier("templateWithSSL")
-//    @Primary
-    public RestTemplate templateWithSSL(@Autowired RestTemplateProperties restTemplateProperties) {
-        //Implement settings for with ssl
-        // add rest template properties
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setRequestFactory(buildRequestFactory(restTemplateProperties));
-        return restTemplate;
-    }
+    Logger log = LoggerFactory.getLogger(RestTemplateProvider.class);
+    private RestTemplate restTemplate;
 
     @Bean
-//    @Qualifier("templateWithoutSSL")
-    public RestTemplate templateWithoutSSL(@Autowired RestTemplateProperties restTemplateProperties) {
-        //Implement settings for without ssl
-        // add rest template properties
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setRequestFactory(buildRequestFactory(restTemplateProperties));
-        return restTemplate;
-    }
-
-    private ClientHttpRequestFactory buildRequestFactory(RestTemplateProperties restTemplateProperties) {
-        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+    public RestTemplate restTemplate(@Autowired RestTemplateProperties restTemplateProperties,
+                                     @Autowired SSLContext sslContext,
+                                     @Autowired HostNameVerficationProvider hostNameVerficationProvider) {
+        SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, hostNameVerficationProvider);
+        CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(csf).build();
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+        addTimeoutSettings(restTemplateProperties, requestFactory);
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setRequestFactory(requestFactory);
+        return restTemplate;
+    }
+
+    private void addTimeoutSettings(RestTemplateProperties restTemplateProperties, HttpComponentsClientHttpRequestFactory requestFactory) {
         requestFactory.setConnectionRequestTimeout(restTemplateProperties.getConnectionRequestTimeout());
         requestFactory.setConnectTimeout(restTemplateProperties.getConnectTimeout());
         requestFactory.setReadTimeout(restTemplateProperties.getReadTimeout());
-        return requestFactory;
     }
+
 }

@@ -8,7 +8,7 @@ class GroupManagementServiceApplicationTests {
 
 	@Test
 	void contextLoads() {
-		GroupManagementServiceApplication.main(new String[]{"-Dspring.profiles.active=, -Djava.security.egd=file:/dev/./urandom "});
+		//GroupManagementServiceApplication.main(new String[]{"-Dspring.profiles.active=, -Djava.security.egd=file:/dev/./urandom "});
 	}
 
 }

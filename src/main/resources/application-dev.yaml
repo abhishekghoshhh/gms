@@ -13,12 +13,6 @@ iam:
   scim:
     host: http://127.0.0.1:8080
     path: /scim/Me
-
-template:
-  withSsl: false
-  connectionTimeout: 3000
-  readTimeout: 3000
-
 #resilience4j:
 #  bulkhead:
 #    instances:
@@ -33,6 +27,8 @@ template:
 #        queueCapacity: 1
 
 rest-template:
+  verifyHostName: false
+  withSsl: false
   connectionRequestTimeout: 200
   connectTimeout: 200
   readTimeout: 200

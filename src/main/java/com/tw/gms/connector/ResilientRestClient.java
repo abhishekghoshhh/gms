@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.http.HttpEntity;
@@ -21,22 +20,13 @@ import java.util.Map;
 @Service
 public class ResilientRestClient {
 
+    @Autowired
     RestTemplate restTemplate;
 
     @Autowired
     CircuitBreakerFactory circuitBreakerFactory;
 
     Logger log = LoggerFactory.getLogger(ResilientRestClient.class);
-
-    public ResilientRestClient(@Value("${template.withSsl}") String restTemplateType,
-                               @Autowired RestTemplate templateWithSSL,
-                               @Autowired RestTemplate templateWithoutSSL) {
-        if ("false".equalsIgnoreCase(restTemplateType)) {
-            restTemplate = templateWithoutSSL;
-        } else {
-            restTemplate = templateWithSSL;
-        }
-    }
 
     public <T> ResponseEntity<T> exchange(String hystrixKey, URI url, HttpMethod method, HttpEntity<?> httpEntity, Class<T> type, T defaultResponse) {
         CircuitBreaker circuitBreaker = getCircuitBreaker(hystrixKey);
