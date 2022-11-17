@@ -23,8 +23,8 @@ public class RestTemplateProvider {
     public RestTemplate restTemplate(@Autowired RestTemplateProperties restTemplateProperties,
                                      @Autowired SSLContext sslContext,
                                      @Autowired HostNameVerficationProvider hostNameVerficationProvider) {
-        SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, hostNameVerficationProvider);
-        CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(csf).build();
+        SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext, hostNameVerficationProvider);
+        CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
         addTimeoutSettings(restTemplateProperties, requestFactory);
         RestTemplate restTemplate = new RestTemplate();

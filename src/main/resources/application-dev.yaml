@@ -27,15 +27,15 @@ iam:
 
 rest-template:
   verifyHostName: false
-  withSsl: false
-  connectionRequestTimeout: 200
-  connectTimeout: 200
-  readTimeout: 200
+  withSsl: true
+  connectionRequestTimeout: 3000
+  connectTimeout: 3000
+  readTimeout: 3000
 
 resilience4j.timelimiter:
   instances:
     iam-profile:
-      timeoutDuration: 200ms
+      timeoutDuration: 1000ms
       cancelRunningFuture: true
 resilience4j.circuitbreaker:
   instances:

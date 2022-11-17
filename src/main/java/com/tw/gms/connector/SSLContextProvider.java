@@ -2,23 +2,22 @@ package com.tw.gms.connector;
 
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.ssl.SSLContexts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.util.ResourceUtils;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-
-import static org.springframework.util.ResourceUtils.getFile;
 
 @Configuration
 public class SSLContextProvider {
@@ -27,24 +26,36 @@ public class SSLContextProvider {
     Logger log = LoggerFactory.getLogger(SSLContextProvider.class);
 
     @Bean
-    public SSLContext sslContext(@Autowired Environment environment)
+    public SSLContext sslContext(@Autowired Environment environment, @Autowired CertSignatureVerifier certSignatureVerifier)
             throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         String withSsl = environment.getProperty("rest-template.withSsl", TRUE);
         if (TRUE.equalsIgnoreCase(withSsl)) {
-            //String location = "D:\\ssl_server.jks";
-            String location = environment.getProperty("server.ssl.key-store");
-            String pass = environment.getProperty("key-store-password");
-            return SSLContextBuilder
-                    .create()
-                    .loadTrustMaterial(getFile(location), pass.toCharArray())
-                    .build();
-
-        } else {
-            TrustStrategy acceptingTrustStrategy = (X509Certificate[] x509Certificates, String authType) -> {
+            TrustStrategy trustStrategy = (X509Certificate[] x509Certificates, String authType) -> {
+//                try {
+//                    return certSignatureVerifier.verifyCertChainSignatures(x509Certificates);
+//                } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchProviderException | SignatureException |
+//                         IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException | IOException e) {
+//                    log.error("error occurred during certificate verification {}", e.getMessage());
+//                    return false;
+//                }
                 return true;
             };
-            return SSLContexts.custom()
-                    .loadTrustMaterial(null, acceptingTrustStrategy)
+            String location = environment.getProperty("server.ssl.key-store");
+            String pass = environment.getProperty("server.ssl.key-store-password");
+            if (null == location || location.isBlank() || null == pass || pass.isBlank()) {
+                throw new RuntimeException("keystore/password should not be empty");
+            }
+            return SSLContextBuilder
+                    .create()
+                    .loadTrustMaterial(ResourceUtils.getFile(location), pass.toCharArray(),trustStrategy)
+                    .build();
+        } else {
+            TrustStrategy trustStrategy = (X509Certificate[] x509Certificates, String authType) -> {
+                return true;
+            };
+            return SSLContextBuilder
+                    .create()
+                    .loadTrustMaterial(trustStrategy)
                     .build();
         }
     }
