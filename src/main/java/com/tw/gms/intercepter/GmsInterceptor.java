@@ -24,7 +24,6 @@ public class GmsInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         Map<String, String> context = new HashMap<>();
-        context.put("thread-name", Thread.currentThread().getName());
         context.put("uuid", UUID.randomUUID().toString());
         context.put("method", request.getMethod());
         context.put("uri", request.getRequestURI());
