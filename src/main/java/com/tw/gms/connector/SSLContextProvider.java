@@ -30,13 +30,6 @@ public class SSLContextProvider {
         String withSsl = environment.getProperty("rest-template.withSsl", TRUE);
         if (TRUE.equalsIgnoreCase(withSsl)) {
             TrustStrategy trustStrategy = (X509Certificate[] x509Certificates, String authType) -> {
-//                try {
-//                    return certSignatureVerifier.verifyCertChainSignatures(x509Certificates);
-//                } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchProviderException | SignatureException |
-//                         IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException | IOException e) {
-//                    log.error("error occurred during certificate verification {}", e.getMessage());
-//                    return false;
-//                }
                 return true;
             };
             String location = environment.getProperty("server.ssl.key-store");
@@ -49,9 +42,7 @@ public class SSLContextProvider {
                     .loadTrustMaterial(ResourceUtils.getFile(location), pass.toCharArray(), trustStrategy)
                     .build();
         } else {
-            TrustStrategy trustStrategy = (X509Certificate[] x509Certificates, String authType) -> {
-                return true;
-            };
+            TrustStrategy trustStrategy = (X509Certificate[] x509Certificates, String authType) -> true;
             return SSLContextBuilder
                     .create()
                     .loadTrustMaterial(trustStrategy)
