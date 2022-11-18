@@ -11,8 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-@ToString
 public class RestTemplateProperties {
     private int connectionRequestTimeout = 1000;
     private int connectTimeout = 1000;
