@@ -24,8 +24,8 @@ public class RestTemplateProviderTest {
         SSLContext sslContext = SSLContexts.custom()
                 .loadTrustMaterial(null, (x509Certificates, authType) -> true)
                 .build();
-        HostNameVerficationProvider hostNameVerficationProvider = new HostNameVerficationProvider("false");
+        HostNameVerificationProvider hostNameVerificationProvider = new HostNameVerificationProvider("false");
         RestTemplateProperties restTemplateProperties = new RestTemplateProperties();
-        assertNotNull(restTemplateProvider.restTemplate(restTemplateProperties, sslContext, hostNameVerficationProvider));
+        assertNotNull(restTemplateProvider.restTemplate(restTemplateProperties, sslContext, hostNameVerificationProvider));
     }
 }

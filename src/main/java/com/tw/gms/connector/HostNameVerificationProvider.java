@@ -7,10 +7,10 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
 @Component
-public class HostNameVerficationProvider implements HostnameVerifier {
+public class HostNameVerificationProvider implements HostnameVerifier {
     private final String verifyHostName;
 
-    public HostNameVerficationProvider(@Value("${rest-template.verifyHostName:false}") String verifyHostName) {
+    public HostNameVerificationProvider(@Value("${rest-template.verifyHostName:false}") String verifyHostName) {
         this.verifyHostName = verifyHostName;
     }
 
@@ -18,7 +18,7 @@ public class HostNameVerficationProvider implements HostnameVerifier {
     public boolean verify(String hostName, SSLSession sslSession) {
         if ("true".equalsIgnoreCase(verifyHostName)) {
             //TODO implement this
-            return "localhost".equalsIgnoreCase(hostName) || "127.0.0.1".equals(hostName);
+            //return "localhost".equalsIgnoreCase(hostName) || "127.0.0.1".equals(hostName);
         }
         return true;
     }

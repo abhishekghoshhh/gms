@@ -22,8 +22,8 @@ public class RestTemplateProvider {
     @Bean
     public RestTemplate restTemplate(@Autowired RestTemplateProperties restTemplateProperties,
                                      @Autowired SSLContext sslContext,
-                                     @Autowired HostNameVerficationProvider hostNameVerficationProvider) {
-        SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext, hostNameVerficationProvider);
+                                     @Autowired HostNameVerificationProvider hostNameVerificationProvider) {
+        SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext, hostNameVerificationProvider);
         CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
         addTimeoutSettings(restTemplateProperties, requestFactory);

@@ -15,6 +15,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -61,7 +62,9 @@ public class ResilientRestClient {
     }
 
     private Map<String, String> getContextMap() {
-        return null != ThreadContext.getContext() ? ThreadContext.getContext() : MDC.getCopyOfContextMap();
+        if (null != MDC.getCopyOfContextMap()) return MDC.getCopyOfContextMap();
+        if (null != ThreadContext.getContext()) return ThreadContext.getContext();
+        return new HashMap<>();
     }
 
     private <T> T buildException(RuntimeException exception) throws RestCallException {
@@ -72,10 +75,9 @@ public class ResilientRestClient {
             throw new RestCallException("Unauthorized Access",
                     httpClientErrorException.getStatusCode(),
                     httpClientErrorException.getResponseBodyAsString());
-        } else {
-            throw new RestCallException("Internal server error",
-                    null != cause ? cause.getMessage() : exception.getMessage());
         }
+        throw new RestCallException("Internal server error",
+                null != cause ? cause.getMessage() : exception.getMessage());
     }
 
     private CircuitBreaker getCircuitBreaker(String hystrixKey) {
