@@ -26,7 +26,7 @@ public class SSLContextProvider {
     Logger log = LoggerFactory.getLogger(SSLContextProvider.class);
 
     @Bean
-    public SSLContext sslContext(@Autowired Environment environment, @Autowired CertSignatureVerifier certSignatureVerifier)
+    public SSLContext sslContext(@Autowired Environment environment/*, @Autowired CertSignatureVerifier certSignatureVerifier*/)
             throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         String withSsl = environment.getProperty("rest-template.withSsl", TRUE);
         if (TRUE.equalsIgnoreCase(withSsl)) {
@@ -47,7 +47,7 @@ public class SSLContextProvider {
             }
             return SSLContextBuilder
                     .create()
-                    .loadTrustMaterial(ResourceUtils.getFile(location), pass.toCharArray(),trustStrategy)
+                    .loadTrustMaterial(ResourceUtils.getFile(location), pass.toCharArray(), trustStrategy)
                     .build();
         } else {
             TrustStrategy trustStrategy = (X509Certificate[] x509Certificates, String authType) -> {
