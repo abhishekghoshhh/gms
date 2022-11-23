@@ -12,22 +12,11 @@ iam:
     host: http://127.0.0.1:8080
     path: /scim/Me
 
-#resilience4j:
-#  bulkhead:
-#    instances:
-#      iam-profile:
-#        maxWaitDuration: 1ms
-#        maxConcurrentCall: 2
-#  thread-pool-bulkhead:
-#    instances:
-#      iam-profile:
-#        maxThreadPoolSize: 1
-#        coreThreadPoolSize: 1
-#        queueCapacity: 1
 
 rest-template:
-  verifyHostName: false
+  verifyHostName: true
   withSsl: true
+  validateCertificateChain: true
   connectionRequestTimeout: 3000
   connectTimeout: 3000
   readTimeout: 3000

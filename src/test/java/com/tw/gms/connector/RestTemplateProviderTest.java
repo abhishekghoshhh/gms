@@ -6,7 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -24,8 +26,8 @@ public class RestTemplateProviderTest {
         SSLContext sslContext = SSLContexts.custom()
                 .loadTrustMaterial(null, (x509Certificates, authType) -> true)
                 .build();
-        HostNameVerificationProvider hostNameVerificationProvider = new HostNameVerificationProvider("false");
+        HostnameVerifier hostnameVerifier = (String hostName, SSLSession sslSession) -> true;
         RestTemplateProperties restTemplateProperties = new RestTemplateProperties();
-        assertNotNull(restTemplateProvider.restTemplate(restTemplateProperties, sslContext, hostNameVerificationProvider));
+        assertNotNull(restTemplateProvider.restTemplate(restTemplateProperties, sslContext, hostnameVerifier));
     }
 }

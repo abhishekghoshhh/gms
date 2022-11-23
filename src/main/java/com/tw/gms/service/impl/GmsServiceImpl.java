@@ -33,6 +33,7 @@ public class GmsServiceImpl implements GmsService {
             Set<String> profileGroups = new HashSet<>(profileResponse.groupNamesList());
             List<String> filteredGroups = groups.stream()
                     .filter(profileGroups::contains)
+                    .distinct()
                     .collect(Collectors.toList());
             return filteredGroups.isEmpty() ? EMPTY_STRING : String.join("\n", filteredGroups).concat("\n");
         }

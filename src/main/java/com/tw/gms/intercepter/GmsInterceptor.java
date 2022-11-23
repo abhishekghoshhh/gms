@@ -24,13 +24,14 @@ public class GmsInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         Map<String, String> context = new HashMap<>();
-        context.put("uuid", UUID.randomUUID().toString());
+        String uuid = UUID.randomUUID().toString();
+        context.put("uuid", uuid);
         context.put("method", request.getMethod());
         context.put("uri", request.getRequestURI());
         context.put("startTime", String.valueOf(System.currentTimeMillis()));
         ThreadContext.putAll(context);
         MDC.setContextMap(context);
-        log.info("transaction started");
+        log.debug("transaction started for uuid {}", uuid);
         return true;
     }
 
@@ -44,7 +45,8 @@ public class GmsInterceptor implements HandlerInterceptor {
                                 @Nullable Exception ex) throws Exception {
         Map<String, String> context = MDC.getCopyOfContextMap();
         long responseTime = System.currentTimeMillis() - Long.valueOf(context.get("startTime"));
-        log.info("transaction completed");
+        String uuid = context.get("uuid");
+        log.debug("transaction completed for uuid {}", uuid);
         log.info("ResponseCode={}|ResponseTime={}ms", response.getStatus(), responseTime);
         ThreadContext.clearMap();
         MDC.clear();

@@ -5,11 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.net.ssl.SSLSession;
-
-import static com.tw.gms.utils.TestUtils.setFieldByReflection;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
 public class HostNameVerificationProviderTest {
@@ -18,14 +14,12 @@ public class HostNameVerificationProviderTest {
     HostNameVerificationProvider hostNameVerificationProvider;
 
     @Test
-    public void verifyWithTrue() throws NoSuchFieldException {
-        setFieldByReflection(HostNameVerificationProvider.class, hostNameVerificationProvider, "verifyHostName", "true");
-        assertTrue(hostNameVerificationProvider.verify("localhost", mock(SSLSession.class)));
+    public void verifyWithTrue(){
+        assertNotNull(hostNameVerificationProvider.hostnameVerifier("true"));
     }
 
     @Test
-    public void verifyWithFalse()  throws NoSuchFieldException {
-        setFieldByReflection(HostNameVerificationProvider.class, hostNameVerificationProvider, "verifyHostName", "false");
-        assertTrue(hostNameVerificationProvider.verify("localhost", mock(SSLSession.class)));
+    public void verifyWithFalse(){
+        assertNotNull(hostNameVerificationProvider.hostnameVerifier("false"));
     }
 }
