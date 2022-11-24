@@ -1,9 +1,9 @@
 spring:
   profiles:
-    default: local
+    default: pod
     group:
       "local": "dev"
-      "prod": "prod"
+      "pod": "pod"
 
 #default resilience4j config
 resilience4j.timelimiter:
