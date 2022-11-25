@@ -3,11 +3,12 @@ package com.tw.gms.service.impl;
 import com.tw.gms.connector.ResilientRestClient;
 import com.tw.gms.connector.RestCallException;
 import com.tw.gms.model.ProfileResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -17,7 +18,6 @@ import java.util.List;
 @Service
 public class ProfileFetcher {
 
-    Logger log = LoggerFactory.getLogger(ProfileFetcher.class);
     @Value("${iam.scim.host}")
     String iamHost;
 
@@ -33,9 +33,8 @@ public class ProfileFetcher {
         headers.setAccept(List.of(MediaType.ALL));
         headers.setBearerAuth(token);
         HttpEntity<?> httpEntity = new HttpEntity<>(headers);
-        ResponseEntity<ProfileResponse> responseEntity = resilientRestClient
-                .exchange("iam-profile", uri, HttpMethod.GET, httpEntity, ProfileResponse.class);
-        log.info("user profile response is {}", responseEntity.getBody());
-        return responseEntity.getBody();
+        return resilientRestClient
+                .exchange("iam-profile", uri, HttpMethod.GET, httpEntity, ProfileResponse.class)
+                .getBody();
     }
 }

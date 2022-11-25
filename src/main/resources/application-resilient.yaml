@@ -1,0 +1,12 @@
+resilience4j.timelimiter:
+  instances:
+    iam-profile:
+      timeoutDuration: 1000ms
+      cancelRunningFuture: true
+resilience4j.circuitbreaker:
+  instances:
+    iam-profile:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      permittedNumberOfCallsInHalfOpenState: 5
+      slidingWindowType: TIME_BASED

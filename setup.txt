@@ -1,0 +1,15 @@
+docker stop gms
+docker rm gms
+docker exec -it gms env
+docker rmi gms/gms:latest
+docker build -t gms/gms:latest .
+docker build -t gms/gms:latest -f Dockerfile.optimized .
+docker image inspect gms/gms:latest
+docker run \
+  --name gms \
+  --net=iam -p 443:443 \
+  --env-file=/Users/abhishekghosh/Documents/workspace-spring-tool-suite-4-4.16.0.RELEASE/group-management-service/.env \
+  --restart unless-stopped \
+  gms/gms:latest
+
+java -cp app:app/lib/* com.tw.gms.GroupManagementServiceApplication -Dspring.profiles.active=resilient

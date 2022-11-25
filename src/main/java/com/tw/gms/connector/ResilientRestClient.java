@@ -30,30 +30,38 @@ public class ResilientRestClient {
     Logger log = LoggerFactory.getLogger(ResilientRestClient.class);
 
     public <T> ResponseEntity<T> exchange(String hystrixKey, URI url, HttpMethod method, HttpEntity<?> httpEntity, Class<T> type, T defaultResponse) {
+        log.debug("hystrixKey is {}", hystrixKey);
         CircuitBreaker circuitBreaker = getCircuitBreaker(hystrixKey);
         Map<String, String> contextMap = getContextMap();
         return circuitBreaker.run(() -> {
             MDC.setContextMap(contextMap);
-            log.debug("calling to {} ", url);
-            log.debug("headers are {}", httpEntity.getHeaders());
-            return restTemplate.exchange(url, method, httpEntity, type);
+            log.info("calling to {} ", url);
+            log.info("headers are {}", httpEntity.getHeaders());
+            ResponseEntity<T> responseEntity = restTemplate.exchange(url, method, httpEntity, type);
+            log.info("response is {}", responseEntity.getBody());
+            return responseEntity;
         }, throwable -> {
             MDC.setContextMap(contextMap);
-            log.debug("returning the default response");
+            log.info("returning the default response {}", defaultResponse);
             return ResponseEntity.ok(defaultResponse);
         });
     }
 
     public <T> ResponseEntity<T> exchange(String hystrixKey, URI url, HttpMethod method, HttpEntity<?> httpEntity, Class<T> type) throws RestCallException {
+        log.debug("hystrixKey is {}", hystrixKey);
         CircuitBreaker circuitBreaker = getCircuitBreaker(hystrixKey);
         Map<String, String> contextMap = getContextMap();
         try {
             return circuitBreaker.run(() -> {
                 MDC.setContextMap(contextMap);
-                log.debug("calling to {} ", url);
-                log.debug("headers are {}", httpEntity.getHeaders());
-                return restTemplate.exchange(url, method, httpEntity, type);
+                log.info("calling to {} ", url);
+                log.info("headers are {}", httpEntity.getHeaders());
+                ResponseEntity<T> responseEntity = restTemplate.exchange(url, method, httpEntity, type);
+                log.info("response is {}", responseEntity.getBody());
+                return responseEntity;
             }, throwable -> {
+                log.error("throwing exception from rest-template {}", throwable.getMessage());
+                throwable.printStackTrace();
                 throw new RuntimeException(throwable);
             });
         } catch (RuntimeException exception) {
@@ -69,7 +77,6 @@ public class ResilientRestClient {
 
     private <T> T buildException(RuntimeException exception) throws RestCallException {
         Throwable cause = exception.getCause();
-        log.error("Error from server is : {}", (null != cause ? cause.getMessage() : exception.getMessage()));
         if (cause instanceof HttpClientErrorException) {
             HttpClientErrorException httpClientErrorException = (HttpClientErrorException) cause;
             throw new RestCallException("Unauthorized Access",

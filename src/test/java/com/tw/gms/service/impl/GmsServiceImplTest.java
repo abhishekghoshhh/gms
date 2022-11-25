@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,7 +42,9 @@ public class GmsServiceImplTest {
         ProfileResponse profileResponse = new ProfileResponse(List.of(new Group("group1"), new Group("group2")));
         String token = "token";
         Mockito.when(profileFetcher.fetch(token)).thenReturn(profileResponse);
-        String expectedGroup = "group1\ngroup2\n";
+        String expectedGroup = String.join("\n",
+                        new HashSet<>(List.of("group1", "group2")))
+                .concat("\n");
         assertEquals(expectedGroup, gmsServiceImpl.isAMember(token, groups));
     }
 

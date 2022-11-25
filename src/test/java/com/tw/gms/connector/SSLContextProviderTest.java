@@ -21,8 +21,6 @@ public class SSLContextProviderTest {
     @Mock
     Environment environment;
 
-    @Mock
-    CertSignatureVerifier certSignatureVerifier;
 
     @Test
     public void sslContextWithSSL() throws Exception {
@@ -34,7 +32,7 @@ public class SSLContextProviderTest {
                 .thenReturn("password");
         when(environment.getProperty(eq("rest-template.validateCertificateChain"), eq("false")))
                 .thenReturn("true");
-        assertNotNull(sSLContextProvider.sslContext(environment, certSignatureVerifier));
+        assertNotNull(sSLContextProvider.sslContext(environment));
     }
 
     @Test
@@ -42,13 +40,13 @@ public class SSLContextProviderTest {
         when(environment.getProperty(eq("rest-template.withSsl"), eq("true")))
                 .thenReturn("true");
 
-        assertThrows(RuntimeException.class, () -> sSLContextProvider.sslContext(environment, certSignatureVerifier));
+        assertThrows(RuntimeException.class, () -> sSLContextProvider.sslContext(environment));
     }
 
     @Test
     public void sslContextWithoutSSl() throws Exception {
         when(environment.getProperty(eq("rest-template.withSsl"), eq("true")))
                 .thenReturn("false");
-        assertNotNull(sSLContextProvider.sslContext(environment, certSignatureVerifier));
+        assertNotNull(sSLContextProvider.sslContext(environment));
     }
 }

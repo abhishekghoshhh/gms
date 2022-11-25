@@ -16,7 +16,6 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
 @Configuration
 public class SSLContextProvider {
@@ -26,14 +25,17 @@ public class SSLContextProvider {
     Logger log = LoggerFactory.getLogger(SSLContextProvider.class);
 
     @Bean
-    public SSLContext sslContext(@Autowired Environment environment, @Autowired CertSignatureVerifier certSignatureVerifier)
+    public SSLContext sslContext(@Autowired Environment environment)
             throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         String withSsl = environment.getProperty("rest-template.withSsl", TRUE);
+        log.info("withSsl flag value {}", withSsl);
         String validateCertificateChain = environment.getProperty("rest-template.validateCertificateChain", FALSE);
-        TrustStrategy trustStrategy = getTrustStrategy(validateCertificateChain, certSignatureVerifier);
+        log.info("validateCertificateChain flag value {}", validateCertificateChain);
+        TrustStrategy trustStrategy = (x509Certificates, authType) -> true;
         if (TRUE.equalsIgnoreCase(withSsl)) {
             String location = environment.getProperty("server.ssl.key-store");
             String pass = environment.getProperty("server.ssl.key-store-password");
+            log.info("location of the certificate {}", location);
             if (null == location || location.isBlank() || null == pass || pass.isBlank()) {
                 throw new RuntimeException("keystore/password should not be empty");
             }
@@ -48,21 +50,4 @@ public class SSLContextProvider {
                     .build();
         }
     }
-
-    private TrustStrategy getTrustStrategy(String validateCertificateChain, CertSignatureVerifier certSignatureVerifier) {
-        if (TRUE.equalsIgnoreCase(validateCertificateChain)) {
-            return (X509Certificate[] x509Certificates, String authType) -> {
-                try {
-                    log.debug("authType is {}", authType);
-                    return certSignatureVerifier.verifyCertChainSignatures(x509Certificates);
-                } catch (Exception e) {
-                    log.error("error while validating certificate chain is {}", e.getMessage());
-                    throw new RuntimeException(e);
-                }
-            };
-        }
-        return (x509Certificates, authType) -> true;
-    }
-
-
 }

@@ -1,6 +1,7 @@
 package com.tw.gms.service.impl;
 
 import com.tw.gms.connector.RestCallException;
+import com.tw.gms.model.Group;
 import com.tw.gms.model.ProfileResponse;
 import com.tw.gms.service.GmsService;
 import org.slf4j.Logger;
@@ -17,26 +18,41 @@ import java.util.stream.Collectors;
 @Service
 public class GmsServiceImpl implements GmsService {
     public static final String EMPTY_STRING = "";
+
     @Autowired
     ProfileFetcher profileFetcher;
     Logger log = LoggerFactory.getLogger(GmsServiceImpl.class);
+
     @Override
     public String isAMember(String token, List<String> groups) throws RestCallException {
-        log.debug("Incoming groups are {}",groups);
+        log.info("Incoming group list is {}", groups);
+
         ProfileResponse profileResponse = profileFetcher.fetch(token);
-        if (CollectionUtils.isEmpty(profileResponse.getGroups())) {
+        Set<String> profileGroups = groupNames(profileResponse);
+        log.info("User group list {}", profileGroups);
+
+        if (CollectionUtils.isEmpty(profileGroups)) {
+            log.debug("User belongs to no group");
             return EMPTY_STRING;
         } else if (CollectionUtils.isEmpty(groups)) {
-            return String.join("\n", profileResponse.groupNamesList())
+            log.debug("Incoming groups list is empty");
+            return String.join("\n", profileGroups)
                     .concat("\n");
         } else {
-            Set<String> profileGroups = new HashSet<>(profileResponse.groupNamesList());
             List<String> filteredGroups = groups.stream()
                     .filter(profileGroups::contains)
                     .distinct()
                     .collect(Collectors.toList());
             return filteredGroups.isEmpty() ? EMPTY_STRING : String.join("\n", filteredGroups).concat("\n");
         }
+    }
+
+    private Set<String> groupNames(ProfileResponse profileResponse) {
+        if (null != profileResponse && !CollectionUtils.isEmpty(profileResponse.getGroups()))
+            return profileResponse.getGroups().stream()
+                    .map(Group::getDisplay)
+                    .collect(Collectors.toSet());
+        return new HashSet<>();
     }
 
 }
