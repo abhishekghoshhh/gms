@@ -1,3 +1,7 @@
+**Description :**
+Group Membership service is an IVOA-compatible wrapper service which is used to query the group membership questions to INDIGO-IAM to know if any user is part of any set of groups or not.
+
+**Setup of Group Membership service :**
 1. Check the iam-login-service from https://github.com/indigo-iam/iam/tree/master/iam-login-service. Run db, Iam-login-service in docker and in same network. 
    1. ``` docker network create iam ```
    2. ```
