@@ -14,12 +14,12 @@ public class HostNameVerificationProviderTest {
     HostNameVerificationProvider hostNameVerificationProvider;
 
     @Test
-    public void verifyWithTrue(){
+    public void verifyWithTrue() {
         assertNotNull(hostNameVerificationProvider.hostnameVerifier("true"));
     }
 
     @Test
-    public void verifyWithFalse(){
+    public void verifyWithFalse() {
         assertNotNull(hostNameVerificationProvider.hostnameVerifier("false"));
     }
 }

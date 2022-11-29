@@ -25,12 +25,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(GmsController.class)
 @WithMockUser
 public class GmsControllerAdvisorTest {
-    @Autowired
-    private MockMvc mockMvc;
-
-
     @MockBean
     GmsService gmsService;
+    @Autowired
+    private MockMvc mockMvc;
 
     @Test
     public void shouldReturnUnauthorizedStatus() throws Exception {

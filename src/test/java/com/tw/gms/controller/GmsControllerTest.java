@@ -19,16 +19,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(GmsController.class)
 @WithMockUser
 public class GmsControllerTest {
+    @MockBean
+    GmsService gmsService;
     @Autowired
     private MockMvc mockMvc;
 
-
-    @MockBean
-    GmsService gmsService;
-
     @Test
     void isAMember() throws Exception {
-        when(gmsService.isAMember( "token", List.of("group1", "group2"))).thenReturn("group1\ngroup2\n");
+        when(gmsService.isAMember("token", List.of("group1", "group2"))).thenReturn("group1\ngroup2\n");
         HttpHeaders headers = new HttpHeaders();
         headers.set("token", "token");
         mockMvc.perform(get("/gmsService/search")

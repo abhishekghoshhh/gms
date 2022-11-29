@@ -10,11 +10,10 @@ public class GroupManagementServiceApplication {
     private static Logger log = LoggerFactory.getLogger(GroupManagementServiceApplication.class);
 
     public static void main(String[] args) {
-        log.info("arguments specified");
+        log.debug("arguments specified");
         for (String arg : args) {
-            log.info("{}", args);
+            log.debug("{}", arg);
         }
         SpringApplication.run(GroupManagementServiceApplication.class, args);
     }
-
 }

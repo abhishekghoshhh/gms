@@ -1,6 +1,6 @@
 spring:
   profiles:
-    default: default
+    default: default, resilient
 
 server:
   port: ${GMS_APPLICATION_PORT:443}

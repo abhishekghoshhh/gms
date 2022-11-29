@@ -23,15 +23,6 @@ public class GmsTest {
         configurationProperties = ConfigurationProperties.getInstance();
     }
 
-    @BeforeTest
-    public void configuration() {
-        url = configurationProperties.get("gmsUrl");
-        RestAssured.useRelaxedHTTPSValidation();
-        RestAssured.registerParser("text/plain", Parser.TEXT);
-        RestAssured.defaultParser = Parser.TEXT;
-
-    }
-
     @Test
     public static void whenNoGroupsArePassedInQueryParameter() {
         Response response = given().header("token", configurationProperties.get("demo2Token"))
@@ -108,6 +99,15 @@ public class GmsTest {
                 .when()
                 .get(url);
         response.then().statusCode(400);
+    }
+
+    @BeforeTest
+    public void configuration() {
+        url = configurationProperties.get("gmsUrl");
+        RestAssured.useRelaxedHTTPSValidation();
+        RestAssured.registerParser("text/plain", Parser.TEXT);
+        RestAssured.defaultParser = Parser.TEXT;
+
     }
 
 }
