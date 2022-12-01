@@ -1,4 +1,4 @@
-package com.tw.gms.config;
+package com.tw.gms.utils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,7 +11,7 @@ public class ConfigurationProperties {
     private final Properties properties = new Properties();
 
     private ConfigurationProperties() {
-        String relativeLocation = "/src/test/resources/application.properties";
+        String relativeLocation = "integration-test/test/resources/application.properties";
         loadApplicationProperties(relativeLocation);
     }
 
@@ -39,8 +39,26 @@ public class ConfigurationProperties {
         return properties.getProperty(key);
     }
 
-    public String get(String key, String defaultValue) {
-        return properties.getProperty(key, defaultValue);
+    public Set<String> getAsSet(String key) {
+        String value = get(key);
+        if (null == value || "".equalsIgnoreCase(value.trim())) return new HashSet<>();
+        String[] values = value.split(",");
+        return Arrays
+                .stream(values).parallel()
+                .filter(str -> null != str && !"".equalsIgnoreCase(str.trim()))
+                .map(String::trim)
+                .collect(Collectors.toSet());
+    }
+
+    public List<String> getAsList(String key) {
+        String value = get(key);
+        if (null == value || "".equalsIgnoreCase(value.trim())) return new ArrayList<>();
+        String[] values = value.split(",");
+        return Arrays
+                .stream(values).parallel()
+                .filter(str -> null != str && !"".equalsIgnoreCase(str.trim()))
+                .map(String::trim)
+                .collect(Collectors.toList());
     }
 
 }

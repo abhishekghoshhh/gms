@@ -1,6 +1,7 @@
 package com.tw.gms;
 
-import com.tw.gms.config.ConfigurationProperties;
+import com.tw.gms.utils.ConfigurationProperties;
+import com.tw.gms.utils.IntegrationTestUtils;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
@@ -10,84 +11,90 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 
-import static com.tw.gms.config.TestUtils.toList;
-import static com.tw.gms.config.TestUtils.toSet;
+import static com.tw.gms.utils.IntegrationTestUtils.*;
 import static io.restassured.RestAssured.given;
 
 
 public class GmsTest {
     private static String url;
-    private static ConfigurationProperties configurationProperties;
+    private static final ConfigurationProperties properties;
 
     static {
-        configurationProperties = ConfigurationProperties.getInstance();
+        properties = ConfigurationProperties.getInstance();
     }
 
     @Test
     public static void whenNoGroupsArePassedInQueryParameter() {
-        Response response = given().header("token", configurationProperties.get("demo2Token"))
+        Response response = given()
+                .header("token", properties.get("tokenOfUserWithGroups"))
                 .when()
                 .get(url);
         response.then().statusCode(200);
         Assert.assertEquals(
-                toSet(response.asString().split("\n")),
-                toSet("Developer", "Admin", "Viewer"));
+                toSetWithSeparator(response.asString(), "\n"),
+                properties.getAsSet("groups"));
     }
 
     @Test
-    public static void whenSingleGroupsArePassedAsQueryParameter() {
-        Response response = given().header("token", configurationProperties.get("demo3Token"))
-                .queryParam("group", "Developer")
+    public static void whenSingleGroupIsPassedAsQueryParameter() {
+        Response response = given()
+                .header("token", properties.get("tokenOfUserWithGroups"))
+                .queryParam("group", properties.getAsList("groups").get(0))
                 .when()
                 .get(url);
         response.then().statusCode(200);
-        List<String> groupsAsList = toList(response.asString().split("\n"));
+        List<String> groupsAsList = toListWithSeparator(response.asString(), "\n");
         Assert.assertEquals(groupsAsList.size(), 1);
-        Assert.assertEquals(groupsAsList, List.of("Developer"));
+        Assert.assertEquals(groupsAsList, properties.getAsList("groups").subList(0, 1));
     }
 
     @Test
     public static void whenValidMultipleGroupsArePassedAsQueryParameter() {
-        Response response = given().header("token", configurationProperties.get("demo3Token"))
-                .queryParam("group", "Viewer")
-                .queryParam("group", "Developer")
+        Response response = given()
+                .header("token", properties.get("tokenOfUserWithGroups"))
+                .queryParam("group", properties.getAsList("groups").get(0))
+                .queryParam("group", properties.getAsList("groups").get(1))
+                .queryParam("group", "Maintainer")
                 .when()
                 .get(url);
         response.then().statusCode(200);
         Assert.assertEquals(
-                toSet(response.asString().split("\n")),
-                toSet("Developer", "Viewer"));
+                toSetWithSeparator(response.asString(), "\n"),
+                IntegrationTestUtils.toSet(properties.getAsList("groups").get(0), properties.getAsList("groups").get(1)));
 
     }
 
     @Test
     public static void whenUnknownGroupsArePassedInQueryParameter() {
-        Response response = given().header("token", configurationProperties.get("demo4Token"))
-                .queryParam("group", "backend")
+        Response response = given()
+                .header("token", properties.get("tokenOfUserWithGroups"))
+                .queryParam("group", "Unknown")
                 .when()
                 .get(url);
         response.then().statusCode(200);
         Assert.assertEquals(
-                toList(response.asString().split("\n")).size(),
+                toListWithSeparator(response.asString(), "\n").size(),
                 0);
     }
 
     @Test
     public static void whenUserIsNotPartOfAnyGroups() {
-        Response response = given().header("token", configurationProperties.get("demo1Token"))
+        Response response = given()
+                .header("token", properties.get("tokenOfUserWithNoGroups"))
                 .queryParam("group", "Viewer")
                 .queryParam("group", "Developer")
                 .when()
                 .get(url);
         response.then().statusCode(200);
         Assert.assertEquals(
-                toList(response.asString().split("\n")).size(),
+                toListWithSeparator(response.asString(), "\n").size(),
                 0);
     }
 
     @Test
     public static void whenIncorrectTokenIsPassed() {
-        Response response = given().header("token", configurationProperties.get("dummyToken"))
+        Response response = given().
+                header("token", "incorrectToken")
                 .when()
                 .get(url);
         response.then().statusCode(401);
@@ -103,11 +110,10 @@ public class GmsTest {
 
     @BeforeTest
     public void configuration() {
-        url = configurationProperties.get("gmsUrl");
+        url = properties.get("gmsUrl");
         RestAssured.useRelaxedHTTPSValidation();
         RestAssured.registerParser("text/plain", Parser.TEXT);
         RestAssured.defaultParser = Parser.TEXT;
-
     }
 
 }
