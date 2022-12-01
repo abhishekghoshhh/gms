@@ -46,3 +46,15 @@ Group Membership service is an IVOA-compatible wrapper service which is used to 
       2. Change the gms keystore details in .env file 
       3. Export the env file : ```export $(xargs < .env) ```
       4. Run the JAR: ``` java -jar target/group-management-service-0.0.1.jar ```
+
+**How to run integration test of Group Membership service :**
+1. Make sure iam-login-service and iam-test-client service are up and running.
+2. Login with the admin user in iam-login-service
+3. Add three groups(Developer,Admin,Viewer).
+4. Add two user with username as userWithNoGroups and userWithGroups.
+5. Add those three groups to userWithGroups.
+6. Make sure you are able to log in with userWithNoGroups and userWithGroups user in iam-test-client.
+7. Once you are logged in iam-test-client you will see authentication token in the dashboard.
+8. copy the tokens for both of the user and paste it in the application.properties file in integration-test.
+9. Update the GMS url in application.properties if needed.
+10. Run ```mvn test```.

@@ -11,7 +11,7 @@ public class ConfigurationProperties {
     private final Properties properties = new Properties();
 
     private ConfigurationProperties() {
-        String relativeLocation = "integration-test/test/resources/application.properties";
+        String relativeLocation = "src/integration-test/resources/application.properties";
         loadApplicationProperties(relativeLocation);
     }
 
