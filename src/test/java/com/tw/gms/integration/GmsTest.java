@@ -1,17 +1,17 @@
-package com.tw.gms;
+package com.tw.gms.integration;
 
-import com.tw.gms.utils.ConfigurationProperties;
-import com.tw.gms.utils.IntegrationTestUtils;
+import com.tw.gms.integration.utils.ConfigurationProperties;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
+
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.util.List;
 
-import static com.tw.gms.utils.IntegrationTestUtils.*;
+import static com.tw.gms.integration.utils.IntegrationTestUtils.*;
 import static io.restassured.RestAssured.given;
 
 
@@ -23,7 +23,7 @@ public class GmsTest {
         properties = ConfigurationProperties.getInstance();
     }
 
-    @Test
+    @Test(enabled = false)
     public static void whenNoGroupsArePassedInQueryParameter() {
         Response response = given()
                 .header("token", properties.get("tokenOfUserWithGroups"))
@@ -35,7 +35,7 @@ public class GmsTest {
                 properties.getAsSet("groups"));
     }
 
-    @Test
+    @Test(enabled = false)
     public static void whenSingleGroupIsPassedAsQueryParameter() {
         Response response = given()
                 .header("token", properties.get("tokenOfUserWithGroups"))
@@ -48,7 +48,7 @@ public class GmsTest {
         Assert.assertEquals(groupsAsList, properties.getAsList("groups").subList(0, 1));
     }
 
-    @Test
+    @Test(enabled = false)
     public static void whenValidMultipleGroupsArePassedAsQueryParameter() {
         Response response = given()
                 .header("token", properties.get("tokenOfUserWithGroups"))
@@ -60,11 +60,11 @@ public class GmsTest {
         response.then().statusCode(200);
         Assert.assertEquals(
                 toSetWithSeparator(response.asString(), "\n"),
-                IntegrationTestUtils.toSet(properties.getAsList("groups").get(0), properties.getAsList("groups").get(1)));
+                toSet(properties.getAsList("groups").get(0), properties.getAsList("groups").get(1)));
 
     }
 
-    @Test
+    @Test(enabled = false)
     public static void whenUnknownGroupsArePassedInQueryParameter() {
         Response response = given()
                 .header("token", properties.get("tokenOfUserWithGroups"))
@@ -77,7 +77,7 @@ public class GmsTest {
                 0);
     }
 
-    @Test
+    @Test(enabled = false)
     public static void whenUserIsNotPartOfAnyGroups() {
         Response response = given()
                 .header("token", properties.get("tokenOfUserWithNoGroups"))
@@ -91,7 +91,7 @@ public class GmsTest {
                 0);
     }
 
-    @Test
+    @Test(enabled = false)
     public static void whenIncorrectTokenIsPassed() {
         Response response = given().
                 header("token", "incorrectToken")

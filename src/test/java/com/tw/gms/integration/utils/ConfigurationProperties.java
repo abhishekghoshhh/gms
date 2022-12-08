@@ -1,4 +1,4 @@
-package com.tw.gms.utils;
+package com.tw.gms.integration.utils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,7 +11,7 @@ public class ConfigurationProperties {
     private final Properties properties = new Properties();
 
     private ConfigurationProperties() {
-        String relativeLocation = "src/integration-test/resources/application.properties";
+        String relativeLocation = "src/test/resources/application.properties";
         loadApplicationProperties(relativeLocation);
     }
 

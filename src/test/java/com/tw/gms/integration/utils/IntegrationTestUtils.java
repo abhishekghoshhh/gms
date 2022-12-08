@@ -1,4 +1,4 @@
-package com.tw.gms.utils;
+package com.tw.gms.integration.utils;
 
 import java.util.*;
 import java.util.stream.Collectors;
