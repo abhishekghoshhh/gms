@@ -57,4 +57,5 @@ Group Membership service is an IVOA-compatible wrapper service which is used to 
 7. Once you are logged in iam-test-client you will see authentication token in the dashboard.
 8. copy the tokens for both of the user and paste it in the application.properties file in integration-test.
 9. Update the GMS url in application.properties if needed.
-10. Run ```mvn test```.
+10. Set enable as true in the tests in com.tw.gms.integration.GmsTest
+11. Run ```mvn test -Dtest=com.tw.gms.integration.GmsTest -DfailIfNoTests=false -Dsurefire.suiteXmlFiles=src/test/resources/testng.xml```.
