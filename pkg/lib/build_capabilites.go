@@ -3,19 +3,55 @@ package lib
 import (
 	"log"
 	"os"
+	"regexp"
+
+	"github.com/abhishekghoshhh/gms/pkg/model"
 )
 
-var template string
+const (
+	RESOURCES                            = "resources"
+	CAPABILITIES_FILE                    = "capabilities.xml"
+	CAPABILITIES_CONFIG_REGEX_EXPRESSION = `\$\{(\w+)\}`
+)
 
-func init() {
-	body, err := os.ReadFile("resources/capabilities.xml")
+type CapabilityBuilder interface {
+	Capabilties() string
+}
+
+type DefaultCapabilityBuilder struct {
+	capabilites string
+}
+
+func (capabilityBuilder *DefaultCapabilityBuilder) Capabilties() string {
+	return capabilityBuilder.capabilites
+}
+func DefaultCapabilites(capabilitiesConfig model.CapabilitiesConfig) *DefaultCapabilityBuilder {
+	template := load(capabilitiesConfig)
+	return &DefaultCapabilityBuilder{
+		capabilites: template,
+	}
+}
+
+func load(capabilitiesConfig model.CapabilitiesConfig) string {
+	capabilitiesDir := RESOURCES + "/" + CAPABILITIES_FILE
+	body, err := os.ReadFile(capabilitiesDir)
 	if err != nil {
 		log.Fatalf("unable to read file: %v", err)
 		panic(err)
 	}
-	template = string(body)
-}
+	templateString := string(body)
+	// Compile the regex pattern to match variables in the format ${variableName}
+	re := regexp.MustCompile(CAPABILITIES_CONFIG_REGEX_EXPRESSION)
 
-func CapabilitiesTemplate() string {
-	return template
+	// Use ReplaceAllStringFunc to replace each match with the corresponding value from the map
+	result := re.ReplaceAllStringFunc(templateString, func(match string) string {
+		// Extract the variable name from the match
+		key := re.ReplaceAllString(match, "$1")
+		// Return the value from the map or the original match if the variable is not found
+		if value, ok := capabilitiesConfig.Get(key); ok {
+			return value
+		}
+		return match
+	})
+	return result
 }

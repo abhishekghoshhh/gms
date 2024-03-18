@@ -1,11 +1,5 @@
 
-app:
-  profiles: dev
-
-
-
-
-capabilities:
-  scheme: ${TOMCAT_CONNECTOR_SCHEME:http}
-  proxyName: ${TOMCAT_CONNECTOR_PROXY_NAME:localhost}
-  proxyPort: ${TOMCAT_CONNECTOR_PROXY_PORT:8080}
+# capabilities config
+scheme: http
+proxyName: localhost
+proxyPort: 8080

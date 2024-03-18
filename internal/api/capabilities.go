@@ -7,15 +7,18 @@ import (
 	"github.com/abhishekghoshhh/gms/pkg/lib"
 )
 
-type capabilities struct {
+type CapabilitiesApi struct {
+	capabilityBuilder lib.CapabilityBuilder
 }
 
-func CapabilitiesController() *capabilities {
-	return &capabilities{}
+func Capabilities(capabilityBuilder lib.CapabilityBuilder) *CapabilitiesApi {
+	return &CapabilitiesApi{
+		capabilityBuilder,
+	}
 }
 
-func (*capabilities) GetTemplate(responseWriter http.ResponseWriter, request *http.Request) {
+func (capabilitesApi *CapabilitiesApi) GetTemplate(responseWriter http.ResponseWriter, request *http.Request) {
 	responseWriter.Header().Add("Content-Type", "application/xml")
 	responseWriter.WriteHeader(http.StatusOK)
-	fmt.Fprintf(responseWriter, lib.CapabilitiesTemplate())
+	fmt.Fprint(responseWriter, capabilitesApi.capabilityBuilder.Capabilties())
 }
