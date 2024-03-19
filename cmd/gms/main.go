@@ -10,6 +10,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	SERVER_HOST = "0.0.0.0"
+	SERVER_PORT = "8080"
+)
+
 func main() {
 	config := config.New()
 
@@ -22,7 +27,16 @@ func main() {
 	capabilityBuilder := lib.DefaultCapabilites(capabilityConfig)
 	capabilitiesController := api.Capabilities(capabilityBuilder)
 
+	gmsService := lib.GmsService(
+		&lib.TokenFlow{},
+		&lib.ClientCredentialFlow{},
+		&lib.PasswordGrantFlow{},
+		&lib.DefaultGmsFlow{},
+	)
+	gmsController := api.GroupMembership(gmsService)
+
 	router := mux.NewRouter()
 	router.HandleFunc("/capabilities", capabilitiesController.GetTemplate)
-	http.ListenAndServe("0.0.0.0:8081", router)
+	router.HandleFunc("/gms/search", gmsController.GetGroups)
+	http.ListenAndServe(SERVER_HOST+":"+SERVER_PORT, router)
 }
