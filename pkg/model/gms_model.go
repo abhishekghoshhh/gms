@@ -10,6 +10,9 @@ type GmsModel struct {
 func (gmsModel *GmsModel) HasToken() bool {
 	return gmsModel.token != ""
 }
+func (gmsModel *GmsModel) Token() string {
+	return gmsModel.token
+}
 
 func (gmsModel *GmsModel) HasCert() bool {
 	return gmsModel.clientCert != "" && gmsModel.subjectDn != ""

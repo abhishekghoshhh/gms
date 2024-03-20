@@ -1,15 +1,35 @@
 package lib
 
-import "github.com/abhishekghoshhh/gms/pkg/model"
+import (
+	"errors"
+	"strings"
+
+	"github.com/abhishekghoshhh/gms/pkg/client"
+	"github.com/abhishekghoshhh/gms/pkg/logger"
+	"github.com/abhishekghoshhh/gms/pkg/model"
+)
+
+const (
+	BEARER_TOKEN_PREFIX = "Bearer "
+)
 
 type TokenFlow struct {
+	iamClient *client.IamClient
 }
 
-func NewTokenFlow() *TokenFlow {
-	return &TokenFlow{}
+func NewTokenFlow(iamClient *client.IamClient) *TokenFlow {
+	return &TokenFlow{
+		iamClient,
+	}
 }
 
 func (flow *TokenFlow) GetGroups(gmsModel *model.GmsModel) (string, error) {
+	token := gmsModel.Token()
+	if !strings.HasPrefix(token, BEARER_TOKEN_PREFIX) {
+		return "", errors.New("Invalid token " + token)
+	}
+	rsp, _ := flow.iamClient.FetchUser(token)
+	logger.Info("response is " + rsp)
 	return "group1\ngroup2", nil
 }
 

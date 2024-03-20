@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/abhishekghoshhh/gms/internal/api"
+	"github.com/abhishekghoshhh/gms/pkg/client"
 	"github.com/abhishekghoshhh/gms/pkg/config"
 	"github.com/abhishekghoshhh/gms/pkg/lib"
 	"github.com/abhishekghoshhh/gms/pkg/model"
@@ -17,6 +18,10 @@ const (
 
 func main() {
 	config := config.New()
+	iamClient := client.New(
+		config.FromEnv("IAM_HOST"),
+		config.GetString("iam.currentUser"),
+	)
 
 	capabilityConfig := *model.NewCapabitiesConfig(
 		*model.Entry("scheme", config.FromEnvOrConfig("TOMCAT_CONNECTOR_SCHEME", "scheme")),
@@ -37,7 +42,7 @@ func main() {
 
 	gmsService := lib.GmsService(
 		passwordGrantflowConfig.IsActive(),
-		lib.NewTokenFlow(),
+		lib.NewTokenFlow(iamClient),
 		lib.NewClientCredentialFlow(),
 		lib.NewPasswordGrantFlow(passwordGrantflowConfig),
 	)

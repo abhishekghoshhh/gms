@@ -3,3 +3,8 @@
 scheme: http
 proxyName: localhost
 proxyPort: 8080
+
+
+# iam apis
+iam:
+  currentUser: /scim/Me
