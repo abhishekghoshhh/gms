@@ -13,7 +13,12 @@ type GroupMembershipApi struct {
 }
 
 func (gmsApi *GroupMembershipApi) GetGroups(responseWriter http.ResponseWriter, request *http.Request) {
-	gms := model.GMS()
+	gms := model.GMS(
+		request.Header.Get("Authorization"),
+		request.Header.Get("X-SSL-Client-S-Dn"),
+		request.Header.Get("X-SSL-Client-Cert"),
+		request.URL.Query()["group"],
+	)
 	if resp, err := gmsApi.gmsFlow.GetGroups(gms); err != nil {
 		responseWriter.Header().Add("Content-Type", "text/plain")
 		responseWriter.WriteHeader(http.StatusBadRequest)

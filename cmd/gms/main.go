@@ -24,14 +24,22 @@ func main() {
 		*model.Entry("proxyPort", config.FromEnvOrConfig("TOMCAT_CONNECTOR_PROXY_PORT", "proxyPort")),
 	)
 
+	passwordGrantflowConfig := model.NewPasswordGrantFlowConfig(
+		config.FromEnvOrDefault("PASSWORD_GRANT_FLOW_ACTIVE", "true"),
+		config.FromEnv("PASSWORD_GRANT_FLOW_USERNAME"),
+		config.FromEnv("PASSWORD_GRANT_FLOW_PASSWORD"),
+		config.FromEnv("PASSWORD_GRANT_FLOW_CLIENT_ID"),
+		config.FromEnv("PASSWORD_GRANT_FLOW_CLIENT_SECRET"),
+	)
+
 	capabilityBuilder := lib.DefaultCapabilites(capabilityConfig)
 	capabilitiesController := api.Capabilities(capabilityBuilder)
 
 	gmsService := lib.GmsService(
-		false,
-		&lib.TokenFlow{},
-		&lib.ClientCredentialFlow{},
-		&lib.PasswordGrantFlow{},
+		passwordGrantflowConfig.IsActive(),
+		lib.NewTokenFlow(),
+		lib.NewClientCredentialFlow(),
+		lib.NewPasswordGrantFlow(passwordGrantflowConfig),
 	)
 	gmsController := api.GroupMembership(gmsService)
 

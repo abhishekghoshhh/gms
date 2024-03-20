@@ -16,6 +16,10 @@ type Config struct {
 	*viper.Viper
 }
 
+func (*Config) FromEnv(key string) string {
+	return os.Getenv(key)
+}
+
 func (*Config) FromEnvOrDefault(key, defaultVal string) string {
 	val := os.Getenv(key)
 	if val != "" {
