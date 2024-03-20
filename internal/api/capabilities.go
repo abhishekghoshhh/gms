@@ -20,5 +20,5 @@ func Capabilities(capabilityBuilder lib.CapabilityBuilder) *CapabilitiesApi {
 func (capabilitesApi *CapabilitiesApi) GetTemplate(responseWriter http.ResponseWriter, request *http.Request) {
 	responseWriter.Header().Add("Content-Type", "application/xml")
 	responseWriter.WriteHeader(http.StatusOK)
-	fmt.Fprint(responseWriter, capabilitesApi.capabilityBuilder.Capabilties())
+	fmt.Fprint(responseWriter, capabilitesApi.capabilityBuilder.Capabilities())
 }

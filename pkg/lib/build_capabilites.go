@@ -15,20 +15,20 @@ const (
 )
 
 type CapabilityBuilder interface {
-	Capabilties() string
+	Capabilities() string
 }
 
 type DefaultCapabilityBuilder struct {
-	capabilites string
+	capabilities string
 }
 
-func (capabilityBuilder *DefaultCapabilityBuilder) Capabilties() string {
-	return capabilityBuilder.capabilites
+func (capabilityBuilder *DefaultCapabilityBuilder) Capabilities() string {
+	return capabilityBuilder.capabilities
 }
-func DefaultCapabilites(capabilitiesConfig model.CapabilitiesConfig) *DefaultCapabilityBuilder {
+func DefaultCapabilities(capabilitiesConfig model.CapabilitiesConfig) *DefaultCapabilityBuilder {
 	template := load(capabilitiesConfig)
 	return &DefaultCapabilityBuilder{
-		capabilites: template,
+		capabilities: template,
 	}
 }
 

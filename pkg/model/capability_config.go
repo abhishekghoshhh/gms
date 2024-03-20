@@ -9,7 +9,7 @@ func (capabilitiesConfig *CapabilitiesConfig) Get(key string) (string, bool) {
 	return val, ok
 }
 
-func NewCapabitiesConfig(entries ...entry) *CapabilitiesConfig {
+func NewCapabilitiesConfig(entries ...entry) *CapabilitiesConfig {
 	config := make(map[string]string)
 	for _, pair := range entries {
 		config[pair.key] = pair.value

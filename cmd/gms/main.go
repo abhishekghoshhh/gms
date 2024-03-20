@@ -23,7 +23,7 @@ func main() {
 		config.GetString("iam.currentUser"),
 	)
 
-	capabilityConfig := *model.NewCapabitiesConfig(
+	capabilityConfig := *model.NewCapabilitiesConfig(
 		*model.Entry("scheme", config.FromEnvOrConfig("TOMCAT_CONNECTOR_SCHEME", "scheme")),
 		*model.Entry("proxyName", config.FromEnvOrConfig("TOMCAT_CONNECTOR_PROXY_NAME", "proxyName")),
 		*model.Entry("proxyPort", config.FromEnvOrConfig("TOMCAT_CONNECTOR_PROXY_PORT", "proxyPort")),
@@ -37,7 +37,7 @@ func main() {
 		config.FromEnv("PASSWORD_GRANT_FLOW_CLIENT_SECRET"),
 	)
 
-	capabilityBuilder := lib.DefaultCapabilites(capabilityConfig)
+	capabilityBuilder := lib.DefaultCapabilities(capabilityConfig)
 	capabilitiesController := api.Capabilities(capabilityBuilder)
 
 	gmsService := lib.GmsService(
