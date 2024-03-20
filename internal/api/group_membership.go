@@ -13,11 +13,16 @@ type GroupMembershipApi struct {
 }
 
 func (gmsApi *GroupMembershipApi) GetGroups(responseWriter http.ResponseWriter, request *http.Request) {
-	responseWriter.Header().Add("Content-Type", "text/plain")
-	responseWriter.WriteHeader(http.StatusOK)
 	gms := model.GMS()
-	resp, _ := gmsApi.gmsFlow.GetGroups(gms)
-	fmt.Fprint(responseWriter, resp)
+	if resp, err := gmsApi.gmsFlow.GetGroups(gms); err != nil {
+		responseWriter.Header().Add("Content-Type", "text/plain")
+		responseWriter.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(responseWriter, err)
+	} else {
+		responseWriter.Header().Add("Content-Type", "text/plain")
+		responseWriter.WriteHeader(http.StatusOK)
+		fmt.Fprint(responseWriter, resp)
+	}
 }
 
 func GroupMembership(gmsFlow lib.GmsFlow) *GroupMembershipApi {

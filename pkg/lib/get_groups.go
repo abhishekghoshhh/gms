@@ -1,40 +1,49 @@
 package lib
 
-import "github.com/abhishekghoshhh/gms/pkg/model"
+import (
+	"errors"
+
+	"github.com/abhishekghoshhh/gms/pkg/model"
+)
 
 type GmsFlow interface {
-	GetGroups(flowType model.Flow) (string, error)
+	GetGroups(gmsModel *model.GmsModel) (string, error)
 }
 
 type GmsFlowService struct {
-	tokenFlow          GmsFlow
-	clientCrendialFlow GmsFlow
-	passwordGrantFlow  GmsFlow
-	defaultGmsFlow     GmsFlow
+	isPasswordGrantFlowEnabled bool
+	tokenFlow                  GmsFlow
+	clientCrendialFlow         GmsFlow
+	passwordGrantFlow          GmsFlow
 }
 
-func (gmsService *GmsFlowService) GetGroups(flowType model.Flow) (string, error) {
-	return gmsService.getFlow(flowType).GetGroups(flowType)
-}
-
-func (gmsService *GmsFlowService) getFlow(flowType model.Flow) GmsFlow {
-	switch flowType.GetFlowType() {
-	case model.TOKEN_FLOW:
-		return gmsService.tokenFlow
-	case model.CLIENT_CREDENTIAL_FLOW:
-		return gmsService.clientCrendialFlow
-	case model.PASSWORD_GRANT_FLOW:
-		return gmsService.passwordGrantFlow
-	default:
-		return gmsService.defaultGmsFlow
+func (gmsService *GmsFlowService) GetGroups(gmsModel *model.GmsModel) (string, error) {
+	if gmsFlow, err := gmsService.getFlow(gmsModel); err != nil {
+		return "", err
+	} else {
+		return gmsFlow.GetGroups(gmsModel)
 	}
 }
 
-func GmsService(tokenFlow, clientCredentialFlow, passwordGrantFlow, defaultGmsFlow GmsFlow) *GmsFlowService {
+func (gmsService *GmsFlowService) getFlow(gmsModel *model.GmsModel) (GmsFlow, error) {
+	if gmsModel.HasToken() {
+		return gmsService.tokenFlow, nil
+	}
+	if gmsModel.HasCert() {
+		if gmsService.isPasswordGrantFlowEnabled {
+			return gmsService.passwordGrantFlow, nil
+		} else {
+			return gmsService.clientCrendialFlow, nil
+		}
+	}
+	return nil, errors.New("token and cert both not present")
+}
+
+func GmsService(isPasswordGrantFlowEnabled bool, tokenFlow, clientCredentialFlow, passwordGrantFlow GmsFlow) *GmsFlowService {
 	return &GmsFlowService{
+		isPasswordGrantFlowEnabled,
 		tokenFlow,
 		clientCredentialFlow,
 		passwordGrantFlow,
-		defaultGmsFlow,
 	}
 }

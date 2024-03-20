@@ -28,10 +28,10 @@ func main() {
 	capabilitiesController := api.Capabilities(capabilityBuilder)
 
 	gmsService := lib.GmsService(
+		false,
 		&lib.TokenFlow{},
 		&lib.ClientCredentialFlow{},
 		&lib.PasswordGrantFlow{},
-		&lib.DefaultGmsFlow{},
 	)
 	gmsController := api.GroupMembership(gmsService)
 
