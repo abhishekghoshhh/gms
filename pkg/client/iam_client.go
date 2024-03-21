@@ -59,6 +59,6 @@ func (iamClient *IamClient) FetchUser(token string) (*model.IamProfileResponse, 
 		logger.Error("error is " + err.Error())
 		return nil, errors.New("invalid profileResponse")
 	}
-	logger.Debug("profile response is ", zap.Any("resp", iamProfileResponse))
+	logger.Info("profile response is ", zap.Any("resp", iamProfileResponse))
 	return &iamProfileResponse, nil
 }

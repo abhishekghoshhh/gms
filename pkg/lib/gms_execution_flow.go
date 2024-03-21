@@ -27,16 +27,11 @@ func (flow *TokenFlow) GetGroups(gmsModel *model.GmsModel) (string, error) {
 	if !strings.HasPrefix(token, BEARER_TOKEN_PREFIX) {
 		return "", errors.New("Invalid token " + token)
 	}
-	iamProfile, err := flow.iamClient.FetchUser(token)
-	if err != nil {
+	if iamProfile, err := flow.iamClient.FetchUser(token); err != nil {
 		return "", err
+	} else {
+		return iamProfile.GetMatchingGroups(gmsModel.Groups()), nil
 	}
-	var groups strings.Builder
-	for _, group := range iamProfile.Groups {
-		groups.WriteString(group.Display)
-		groups.WriteString("\n")
-	}
-	return groups.String(), nil
 }
 
 type ClientCredentialFlow struct {
