@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/abhishekghoshhh/gms/pkg/client"
-	"github.com/abhishekghoshhh/gms/pkg/logger"
 	"github.com/abhishekghoshhh/gms/pkg/model"
 )
 
@@ -28,9 +27,16 @@ func (flow *TokenFlow) GetGroups(gmsModel *model.GmsModel) (string, error) {
 	if !strings.HasPrefix(token, BEARER_TOKEN_PREFIX) {
 		return "", errors.New("Invalid token " + token)
 	}
-	rsp, _ := flow.iamClient.FetchUser(token)
-	logger.Info("response is " + rsp)
-	return "group1\ngroup2", nil
+	iamProfile, err := flow.iamClient.FetchUser(token)
+	if err != nil {
+		return "", err
+	}
+	var groups strings.Builder
+	for _, group := range iamProfile.Groups {
+		groups.WriteString(group.Display)
+		groups.WriteString("\n")
+	}
+	return groups.String(), nil
 }
 
 type ClientCredentialFlow struct {

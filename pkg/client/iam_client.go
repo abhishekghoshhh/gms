@@ -2,11 +2,16 @@ package client
 
 import (
 	"bytes"
+	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/abhishekghoshhh/gms/pkg/logger"
+	"github.com/abhishekghoshhh/gms/pkg/model"
+	"go.uber.org/zap"
 )
 
 type IamClient struct {
@@ -21,28 +26,39 @@ func New(iamHost, scimProfileApi string) *IamClient {
 	}
 }
 
-func (iamClient *IamClient) FetchUser(token string) (string, error) {
-	req, err := http.NewRequest("GET", iamClient.iamHost+iamClient.scimProfileApi, bytes.NewBuffer(nil))
+func (iamClient *IamClient) FetchUser(token string) (*model.IamProfileResponse, error) {
+	iamUrl, err := url.Parse(iamClient.iamHost)
 	if err != nil {
 		log.Fatal("Error creating request:", err)
+		return nil, err
+	}
+	iamUrl.Path = iamClient.scimProfileApi
+	req, err := http.NewRequest("GET", iamUrl.String(), bytes.NewBuffer(nil))
+	if err != nil {
+		log.Fatal("Error creating request:", err)
+		return nil, err
 	}
 	logger.Info("url is " + (iamClient.iamHost + iamClient.scimProfileApi))
-	logger.Info("token is " + token)
 	req.Header.Set("Authorization", token)
 	req.Header.Add("Accept", "*/*")
 
-	// Create an HTTP client and send the request
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal("Error on response:", err)
+		return nil, err
 	}
 	defer resp.Body.Close()
-	// Read and print the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal("Error reading response body:", err)
+		return nil, err
 	}
-	logger.Info("response is " + string(body))
-	return string(body), nil
+	var iamProfileResponse model.IamProfileResponse
+	if err := json.Unmarshal(body, &iamProfileResponse); err != nil {
+		logger.Error("error is " + err.Error())
+		return nil, errors.New("invalid profileResponse")
+	}
+	logger.Debug("profile response is ", zap.Any("resp", iamProfileResponse))
+	return &iamProfileResponse, nil
 }
