@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestPasswordGrantFlowConfigTest(t *testing.T) {
+func TestPasswordGrantFlowConfig(t *testing.T) {
 	t.Run("should create password grant flow config with given data", func(t *testing.T) {
 		passwordGrantConfig := NewPasswordGrantFlowConfig("True", "username", "password", "id122", "clientSecret")
 

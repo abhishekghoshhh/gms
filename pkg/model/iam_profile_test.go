@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestIamProfile(t *testing.T) {
+func TestIamProfileResponse(t *testing.T) {
 	t.Run("should return matching groups from the requestedGroups", func(t *testing.T) {
 		groups := []Group{
 			{"firstGroup"},
