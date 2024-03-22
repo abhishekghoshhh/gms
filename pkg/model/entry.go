@@ -1,12 +1,12 @@
 package model
 
-type entry struct {
+type Entry struct {
 	key   string
 	value string
 }
 
-func Entry(key, val string) *entry {
-	return &entry{
+func NewEntry(key, val string) *Entry {
+	return &Entry{
 		key,
 		val,
 	}

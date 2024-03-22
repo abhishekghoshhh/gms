@@ -24,9 +24,9 @@ func main() {
 	)
 
 	capabilityConfig := *model.NewCapabilitiesConfig(
-		*model.Entry("scheme", config.FromEnvOrConfig("TOMCAT_CONNECTOR_SCHEME", "scheme")),
-		*model.Entry("proxyName", config.FromEnvOrConfig("TOMCAT_CONNECTOR_PROXY_NAME", "proxyName")),
-		*model.Entry("proxyPort", config.FromEnvOrConfig("TOMCAT_CONNECTOR_PROXY_PORT", "proxyPort")),
+		*model.NewEntry("scheme", config.FromEnvOrConfig("TOMCAT_CONNECTOR_SCHEME", "scheme")),
+		*model.NewEntry("proxyName", config.FromEnvOrConfig("TOMCAT_CONNECTOR_PROXY_NAME", "proxyName")),
+		*model.NewEntry("proxyPort", config.FromEnvOrConfig("TOMCAT_CONNECTOR_PROXY_PORT", "proxyPort")),
 	)
 
 	passwordGrantflowConfig := model.NewPasswordGrantFlowConfig(
