@@ -1,6 +1,10 @@
 .SILENT:
 
-.PHONY: test
+.PHONY: build test image
+
+IMAGE_NAME = abhishek1009/gms-go
+DEFAULT_TAG = latest
+
 
 say_hello:
 	cat ./Makefile
@@ -12,4 +16,7 @@ run:
 	go run cmd/gms/main.go
 
 test:
-	go test ./test/...
+	go test ./...
+
+image:
+	docker build -t $(IMAGE_NAME):$(DEFAULT_TAG) -f deployment/Dockerfile .
