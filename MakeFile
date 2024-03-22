@@ -1,0 +1,15 @@
+.SILENT:
+
+.PHONY: test
+
+say_hello:
+	cat ./Makefile
+
+build:
+	go build cmd/gms/main.go
+
+run:
+	go run cmd/gms/main.go
+
+test:
+	go test ./test/...
