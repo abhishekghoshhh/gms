@@ -17,63 +17,66 @@ func (gmsFlow *MockGmsFlow) GetGroups(gmsModel *model.GmsModel) (string, error) 
 	return gmsFlow.getGroupHandle(gmsModel)
 }
 
-func TestGetGroupsWithSuccess(t *testing.T) {
-	mockGmsFlow := &MockGmsFlow{
-		getGroupHandle: func(gmsModel *model.GmsModel) (string, error) {
-			return "group1\n", nil
-		},
-	}
+func TestGetGroups(t *testing.T) {
 
-	groupMembershipApi := GroupMembership(mockGmsFlow)
+	t.Run("should return groups in text formal with success code", func(t *testing.T) {
+		mockGmsFlow := &MockGmsFlow{
+			getGroupHandle: func(gmsModel *model.GmsModel) (string, error) {
+				return "group1\n", nil
+			},
+		}
 
-	req := httptest.NewRequest("GET", "/template", nil)
+		groupMembershipApi := GroupMembership(mockGmsFlow)
 
-	rr := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/template", nil)
 
-	groupMembershipApi.GetGroups(rr, req)
+		rr := httptest.NewRecorder()
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-	}
+		groupMembershipApi.GetGroups(rr, req)
 
-	expectedContentType := "text/plain"
-	if contentType := rr.Header().Get("Content-Type"); contentType != expectedContentType {
-		t.Errorf("handler returned wrong Content-Type header: got %v want %v", contentType, expectedContentType)
-	}
+		if status := rr.Code; status != http.StatusOK {
+			t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+		}
 
-	expectedBody := "group1\n"
-	if rr.Body.String() != expectedBody {
-		t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expectedBody)
-	}
-}
+		expectedContentType := "text/plain"
+		if contentType := rr.Header().Get("Content-Type"); contentType != expectedContentType {
+			t.Errorf("handler returned wrong Content-Type header: got %v want %v", contentType, expectedContentType)
+		}
 
-func TestGetGroupsWithError(t *testing.T) {
+		expectedBody := "group1\n"
+		if rr.Body.String() != expectedBody {
+			t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expectedBody)
+		}
+	})
 
-	mockGmsFlow := &MockGmsFlow{
-		getGroupHandle: func(gmsModel *model.GmsModel) (string, error) {
-			return "", errors.New("bad request error")
-		},
-	}
+	t.Run("should return error in text formal with bad request code", func(t *testing.T) {
+		mockGmsFlow := &MockGmsFlow{
+			getGroupHandle: func(gmsModel *model.GmsModel) (string, error) {
+				return "", errors.New("bad request error")
+			},
+		}
 
-	groupMembershipApi := GroupMembership(mockGmsFlow)
+		groupMembershipApi := GroupMembership(mockGmsFlow)
 
-	req := httptest.NewRequest("GET", "/template", nil)
+		req := httptest.NewRequest("GET", "/template", nil)
 
-	rr := httptest.NewRecorder()
+		rr := httptest.NewRecorder()
 
-	groupMembershipApi.GetGroups(rr, req)
+		groupMembershipApi.GetGroups(rr, req)
 
-	if status := rr.Code; status != http.StatusBadRequest {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-	}
+		if status := rr.Code; status != http.StatusBadRequest {
+			t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+		}
 
-	expectedContentType := "text/plain"
-	if contentType := rr.Header().Get("Content-Type"); contentType != expectedContentType {
-		t.Errorf("handler returned wrong Content-Type header: got %v want %v", contentType, expectedContentType)
-	}
+		expectedContentType := "text/plain"
+		if contentType := rr.Header().Get("Content-Type"); contentType != expectedContentType {
+			t.Errorf("handler returned wrong Content-Type header: got %v want %v", contentType, expectedContentType)
+		}
 
-	expectedBody := "bad request error"
-	if rr.Body.String() != expectedBody {
-		t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expectedBody)
-	}
+		expectedBody := "bad request error"
+		if rr.Body.String() != expectedBody {
+			t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expectedBody)
+		}
+	})
+
 }

@@ -14,27 +14,30 @@ func (*MockCapabiltyBuilder) Capabilities() string {
 }
 
 func TestGetTemplate(t *testing.T) {
-	mockCapabilityBuilder := &MockCapabiltyBuilder{}
 
-	capabilitiesApi := Capabilities(mockCapabilityBuilder)
+	t.Run("should return capabilities in xml formal with success code", func(t *testing.T) {
+		mockCapabilityBuilder := &MockCapabiltyBuilder{}
 
-	req := httptest.NewRequest("GET", "/template", nil)
+		capabilitiesApi := Capabilities(mockCapabilityBuilder)
 
-	rr := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/template", nil)
 
-	capabilitiesApi.GetTemplate(rr, req)
+		rr := httptest.NewRecorder()
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-	}
+		capabilitiesApi.GetTemplate(rr, req)
 
-	expectedContentType := "application/xml"
-	if contentType := rr.Header().Get("Content-Type"); contentType != expectedContentType {
-		t.Errorf("handler returned wrong Content-Type header: got %v want %v", contentType, expectedContentType)
-	}
+		if status := rr.Code; status != http.StatusOK {
+			t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+		}
 
-	expectedBody := "mock-capability"
-	if rr.Body.String() != expectedBody {
-		t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expectedBody)
-	}
+		expectedContentType := "application/xml"
+		if contentType := rr.Header().Get("Content-Type"); contentType != expectedContentType {
+			t.Errorf("handler returned wrong Content-Type header: got %v want %v", contentType, expectedContentType)
+		}
+
+		expectedBody := "mock-capability"
+		if rr.Body.String() != expectedBody {
+			t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expectedBody)
+		}
+	})
 }
