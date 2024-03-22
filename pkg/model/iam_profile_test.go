@@ -1,17 +1,16 @@
-package model_test
+package model
 
 import (
-	"github.com/abhishekghoshhh/gms/pkg/model"
 	"testing"
 )
 
 func TestIamProfile(t *testing.T) {
 	t.Run("should return matching groups from the requestedGroups", func(t *testing.T) {
-		groups := []model.Group{
+		groups := []Group{
 			{"firstGroup"},
 			{"secondGroup"},
 		}
-		iamProfileResponse := model.IamProfileResponse{
+		iamProfileResponse := IamProfileResponse{
 			Id:          "12",
 			DisplayName: "this is a display name",
 			Groups:      groups,
@@ -26,10 +25,10 @@ func TestIamProfile(t *testing.T) {
 	})
 
 	t.Run("should return empty string if no iam profile groups are available", func(t *testing.T) {
-		iamProfileResponse := model.IamProfileResponse{
+		iamProfileResponse := IamProfileResponse{
 			Id:          "12",
 			DisplayName: "this is a display name",
-			Groups:      make([]model.Group, 0),
+			Groups:      make([]Group, 0),
 		}
 
 		matchingProfiles := iamProfileResponse.GetMatchingGroups([]string{"firstGroup"})
@@ -41,12 +40,12 @@ func TestIamProfile(t *testing.T) {
 	})
 
 	t.Run("should return available iam profile groups if no requestedGroups are available", func(t *testing.T) {
-		groups := []model.Group{
+		groups := []Group{
 			{"firstGroup"},
 			{"secondGroup"},
 		}
 
-		iamProfileResponse := model.IamProfileResponse{
+		iamProfileResponse := IamProfileResponse{
 			Id:          "12",
 			DisplayName: "this is a display name",
 			Groups:      groups,
