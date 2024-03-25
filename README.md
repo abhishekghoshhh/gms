@@ -6,7 +6,7 @@
 visit gomock repository by the following link:
 https://github.com/uber-go/mock
 
-nstall the mockgen tool:
+install the mockgen tool:
 go install go.uber.org/mock/mockgen@latest
 
 To ensure it was installed correctly, use:
@@ -18,4 +18,21 @@ export PATH=$PATH:$(go env GOPATH)/bin
 create mocks using the following command
 mockgen -source=pkg/lib/build_capabilities.go -destination=mocks/mock_build_capabilities.go -package=mocks
 mockgen -source=pkg/lib/get_groups.go -destination=mocks/mock_get_groups.go -package=mocks
+mockgen -source=pkg/model/gms_model.go -destination=mocks/mock_gms_model.go -package=mocks
+```
+
+
+## Live reloading
+```
+visit air repository by the following link:
+https://github.com/cosmtrek/air
+
+install the air tool with go:
+go install github.com/cosmtrek/air@latest
+
+initialize project:
+air init
+
+start project with existing toml file
+air -c .air.toml
 ```
