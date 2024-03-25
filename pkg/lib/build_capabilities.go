@@ -3,6 +3,7 @@ package lib
 import (
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 
 	"github.com/abhishekghoshhh/gms/pkg/model"
@@ -33,7 +34,8 @@ func DefaultCapabilities(capabilitiesConfig model.CapabilitiesConfig) *DefaultCa
 }
 
 func load(capabilitiesConfig model.CapabilitiesConfig) string {
-	capabilitiesDir := RESOURCES + "/" + CAPABILITIES_FILE
+	workingDir, _ := os.Getwd()
+	capabilitiesDir := filepath.Join(workingDir, RESOURCES, CAPABILITIES_FILE)
 	body, err := os.ReadFile(capabilitiesDir)
 	if err != nil {
 		log.Fatalf("unable to read file: %v", err)

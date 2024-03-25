@@ -38,7 +38,7 @@ func (iamClient *IamClient) FetchUser(token string) (*model.IamProfileResponse, 
 		log.Fatal("Error creating request:", err)
 		return nil, err
 	}
-	logger.Info("url is " + (iamClient.iamHost + iamClient.scimProfileApi))
+	logger.Info("url is " + iamUrl.String())
 	req.Header.Set("Authorization", token)
 	req.Header.Add("Accept", "*/*")
 
