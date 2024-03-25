@@ -17,4 +17,5 @@ export PATH=$PATH:$(go env GOPATH)/bin
 
 create mocks using the following command
 mockgen -source=pkg/lib/build_capabilities.go -destination=mocks/mock_build_capabilities.go -package=mocks
+mockgen -source=pkg/lib/get_groups.go -destination=mocks/mock_get_groups.go -package=mocks
 ```

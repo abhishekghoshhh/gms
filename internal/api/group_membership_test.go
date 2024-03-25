@@ -6,27 +6,20 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/abhishekghoshhh/gms/pkg/model"
+	"github.com/abhishekghoshhh/gms/mocks"
+	"go.uber.org/mock/gomock"
 )
-
-type MockGmsFlow struct {
-	getGroupHandle func(gmsModel *model.GmsModel) (string, error)
-}
-
-func (gmsFlow *MockGmsFlow) GetGroups(gmsModel *model.GmsModel) (string, error) {
-	return gmsFlow.getGroupHandle(gmsModel)
-}
 
 func TestGetGroups(t *testing.T) {
 
 	t.Run("should return groups in text formal with success code", func(t *testing.T) {
-		mockGmsFlow := &MockGmsFlow{
-			getGroupHandle: func(gmsModel *model.GmsModel) (string, error) {
-				return "group1\n", nil
-			},
-		}
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-		groupMembershipApi := GroupMembership(mockGmsFlow)
+		gmsFlow := mocks.NewMockGmsFlow(ctrl)
+		gmsFlow.EXPECT().GetGroups(gomock.Any()).Return("group1\n", nil)
+
+		groupMembershipApi := GroupMembership(gmsFlow)
 
 		req := httptest.NewRequest("GET", "/template", nil)
 
@@ -50,13 +43,13 @@ func TestGetGroups(t *testing.T) {
 	})
 
 	t.Run("should return error in text formal with bad request code", func(t *testing.T) {
-		mockGmsFlow := &MockGmsFlow{
-			getGroupHandle: func(gmsModel *model.GmsModel) (string, error) {
-				return "", errors.New("bad request error")
-			},
-		}
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-		groupMembershipApi := GroupMembership(mockGmsFlow)
+		gmsFlow := mocks.NewMockGmsFlow(ctrl)
+		gmsFlow.EXPECT().GetGroups(gomock.Any()).Return("", errors.New("bad request error"))
+
+		groupMembershipApi := GroupMembership(gmsFlow)
 
 		req := httptest.NewRequest("GET", "/template", nil)
 
