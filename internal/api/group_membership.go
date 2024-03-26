@@ -30,7 +30,7 @@ func (gmsApi *GroupMembershipApi) GetGroups(responseWriter http.ResponseWriter, 
 	}
 }
 
-func GroupMembership(gmsFlow lib.GmsFlow) *GroupMembershipApi {
+func GroupMembershipCheck(gmsFlow lib.GmsFlow) *GroupMembershipApi {
 	return &GroupMembershipApi{
 		gmsFlow,
 	}

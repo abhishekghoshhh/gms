@@ -11,10 +11,8 @@ type GmsFlow interface {
 }
 
 type GmsFlowService struct {
-	isPasswordGrantFlowEnabled bool
-	tokenFlow            GmsFlow
-	clientCredentialFlow GmsFlow
-	passwordGrantFlow    GmsFlow
+	tokenFlow      GmsFlow
+	clientCertFlow GmsFlow
 }
 
 func (gmsService *GmsFlowService) GetGroups(gmsModel *model.GmsModel) (string, error) {
@@ -30,20 +28,14 @@ func (gmsService *GmsFlowService) getFlow(gmsModel *model.GmsModel) (GmsFlow, er
 		return gmsService.tokenFlow, nil
 	}
 	if gmsModel.HasCert() {
-		if gmsService.isPasswordGrantFlowEnabled {
-			return gmsService.passwordGrantFlow, nil
-		} else {
-			return gmsService.clientCredentialFlow, nil
-		}
+		return gmsService.clientCertFlow, nil
 	}
 	return nil, errors.New("token and cert both not present")
 }
 
-func GmsService(isPasswordGrantFlowEnabled bool, tokenFlow, clientCredentialFlow, passwordGrantFlow GmsFlow) *GmsFlowService {
+func GmsService(authTokenFlow, clientCertFlow GmsFlow) *GmsFlowService {
 	return &GmsFlowService{
-		isPasswordGrantFlowEnabled,
-		tokenFlow,
-		clientCredentialFlow,
-		passwordGrantFlow,
+		authTokenFlow,
+		clientCertFlow,
 	}
 }

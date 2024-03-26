@@ -1,9 +1,10 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/abhishekghoshhh/gms/pkg/client"
 	"github.com/abhishekghoshhh/gms/pkg/httpclient"
-	"net/http"
 
 	"github.com/abhishekghoshhh/gms/internal/api"
 	"github.com/abhishekghoshhh/gms/pkg/config"
@@ -32,27 +33,18 @@ func main() {
 		*model.NewEntry("proxyPort", config.FromEnvOrConfig("TOMCAT_CONNECTOR_PROXY_PORT", "proxyPort")),
 	)
 
-	passwordGrantflowConfig := model.NewPasswordGrantFlowConfig(
+	capabilityBuilder := lib.CapabilitiesBuilder(capabilityConfig)
+	capabilitiesApi := api.Capabilities(capabilityBuilder)
+
+	authTokenFlow := lib.NewAuthTokenFlow(iamClient)
+	clientCertFlow := lib.NewClientCertFlow(
 		config.FromEnvOrDefault("PASSWORD_GRANT_FLOW_ACTIVE", "true"),
-		config.FromEnv("PASSWORD_GRANT_FLOW_USERNAME"),
-		config.FromEnv("PASSWORD_GRANT_FLOW_PASSWORD"),
-		config.FromEnv("PASSWORD_GRANT_FLOW_CLIENT_ID"),
-		config.FromEnv("PASSWORD_GRANT_FLOW_CLIENT_SECRET"),
 	)
-
-	capabilityBuilder := lib.DefaultCapabilities(capabilityConfig)
-	capabilitiesController := api.Capabilities(capabilityBuilder)
-
-	gmsService := lib.GmsService(
-		passwordGrantflowConfig.IsActive(),
-		lib.NewTokenFlow(iamClient),
-		lib.NewClientCredentialFlow(),
-		lib.NewPasswordGrantFlow(passwordGrantflowConfig),
-	)
-	gmsController := api.GroupMembership(gmsService)
+	gmsService := lib.GmsService(authTokenFlow, clientCertFlow)
+	gmsApi := api.GroupMembershipCheck(gmsService)
 
 	router := mux.NewRouter()
-	router.HandleFunc("/capabilities", capabilitiesController.GetTemplate)
-	router.HandleFunc("/gms/search", gmsController.GetGroups)
+	router.HandleFunc("/capabilities", capabilitiesApi.GetTemplate)
+	router.HandleFunc("/gms/search", gmsApi.GetGroups)
 	http.ListenAndServe(SERVER_HOST+":"+SERVER_PORT, router)
 }

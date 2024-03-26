@@ -26,7 +26,7 @@ type DefaultCapabilityBuilder struct {
 func (capabilityBuilder *DefaultCapabilityBuilder) Capabilities() string {
 	return capabilityBuilder.capabilities
 }
-func DefaultCapabilities(capabilitiesConfig model.CapabilitiesConfig) *DefaultCapabilityBuilder {
+func CapabilitiesBuilder(capabilitiesConfig model.CapabilitiesConfig) *DefaultCapabilityBuilder {
 	template := load(capabilitiesConfig)
 	return &DefaultCapabilityBuilder{
 		capabilities: template,

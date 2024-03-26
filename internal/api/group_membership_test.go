@@ -19,7 +19,7 @@ func TestGetGroups(t *testing.T) {
 		gmsFlow := mocks.NewMockGmsFlow(ctrl)
 		gmsFlow.EXPECT().GetGroups(gomock.Any()).Return("group1\n", nil)
 
-		groupMembershipApi := GroupMembership(gmsFlow)
+		groupMembershipApi := GroupMembershipCheck(gmsFlow)
 
 		req := httptest.NewRequest("GET", "/template", nil)
 
@@ -49,7 +49,7 @@ func TestGetGroups(t *testing.T) {
 		gmsFlow := mocks.NewMockGmsFlow(ctrl)
 		gmsFlow.EXPECT().GetGroups(gomock.Any()).Return("", errors.New("bad request error"))
 
-		groupMembershipApi := GroupMembership(gmsFlow)
+		groupMembershipApi := GroupMembershipCheck(gmsFlow)
 
 		req := httptest.NewRequest("GET", "/template", nil)
 
