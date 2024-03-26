@@ -1,12 +1,8 @@
 package client
 
 import (
-	"encoding/json"
-	"errors"
 	"github.com/abhishekghoshhh/gms/pkg/httpclient"
-	"github.com/abhishekghoshhh/gms/pkg/logger"
 	"github.com/abhishekghoshhh/gms/pkg/model"
-	"go.uber.org/zap"
 )
 
 type IamClient struct {
@@ -37,12 +33,5 @@ func (iamClient *IamClient) FetchUser(token string) (*model.IamProfileResponse, 
 	if err != nil {
 		return nil, err
 	}
-
-	var iamProfileResponse model.IamProfileResponse
-	if err := json.Unmarshal(response, &iamProfileResponse); err != nil {
-		logger.Error("error is " + err.Error())
-		return nil, errors.New("invalid profileResponse")
-	}
-	logger.Info("profile response is ", zap.Any("resp", iamProfileResponse))
-	return &iamProfileResponse, nil
+	return httpclient.ResponseParser(response, &model.IamProfileResponse{})
 }
