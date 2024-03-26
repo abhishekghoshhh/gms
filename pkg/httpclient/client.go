@@ -9,8 +9,7 @@ import (
 )
 
 type Client struct {
-	client         *http.Client
-	requestCreator *http.Request
+	client *http.Client
 }
 
 func NewClient() *Client {
