@@ -1,14 +1,9 @@
 package client
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
-	"io"
-	"log"
-	"net/http"
-	"net/url"
-
+	"github.com/abhishekghoshhh/gms/pkg/httpclient"
 	"github.com/abhishekghoshhh/gms/pkg/logger"
 	"github.com/abhishekghoshhh/gms/pkg/model"
 	"go.uber.org/zap"
@@ -17,45 +12,34 @@ import (
 type IamClient struct {
 	iamHost        string
 	scimProfileApi string
+	client         *httpclient.Client
 }
 
-func New(iamHost, scimProfileApi string) *IamClient {
+func New(client *httpclient.Client, iamHost, scimProfileApi string) *IamClient {
 	return &IamClient{
-		iamHost,
-		scimProfileApi,
+		iamHost:        iamHost,
+		scimProfileApi: scimProfileApi,
+		client:         client,
 	}
 }
 
 func (iamClient *IamClient) FetchUser(token string) (*model.IamProfileResponse, error) {
-	iamUrl, err := url.Parse(iamClient.iamHost)
-	if err != nil {
-		log.Fatal("Error creating request:", err)
-		return nil, err
-	}
-	iamUrl.Path = iamClient.scimProfileApi
-	req, err := http.NewRequest("GET", iamUrl.String(), bytes.NewBuffer(nil))
-	if err != nil {
-		log.Fatal("Error creating request:", err)
-		return nil, err
-	}
-	logger.Info("url is " + iamUrl.String())
-	req.Header.Set("Authorization", token)
-	req.Header.Add("Accept", "*/*")
+	headers := make(map[string]string)
+	headers["Authorization"] = token
+	headers["Accept"] = "*/*"
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	request, err := iamClient.client.Create("GET", iamClient.iamHost, iamClient.scimProfileApi, headers)
 	if err != nil {
-		log.Fatal("Error on response:", err)
 		return nil, err
 	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
+
+	response, err := iamClient.client.Send(request)
 	if err != nil {
-		log.Fatal("Error reading response body:", err)
 		return nil, err
 	}
+
 	var iamProfileResponse model.IamProfileResponse
-	if err := json.Unmarshal(body, &iamProfileResponse); err != nil {
+	if err := json.Unmarshal(response, &iamProfileResponse); err != nil {
 		logger.Error("error is " + err.Error())
 		return nil, errors.New("invalid profileResponse")
 	}

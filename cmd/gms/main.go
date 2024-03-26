@@ -1,10 +1,11 @@
 package main
 
 import (
+	"github.com/abhishekghoshhh/gms/pkg/client"
+	"github.com/abhishekghoshhh/gms/pkg/httpclient"
 	"net/http"
 
 	"github.com/abhishekghoshhh/gms/internal/api"
-	"github.com/abhishekghoshhh/gms/pkg/client"
 	"github.com/abhishekghoshhh/gms/pkg/config"
 	"github.com/abhishekghoshhh/gms/pkg/lib"
 	"github.com/abhishekghoshhh/gms/pkg/model"
@@ -18,7 +19,9 @@ const (
 
 func main() {
 	config := config.New()
+	httpClinet := httpclient.NewClient()
 	iamClient := client.New(
+		httpClinet,
 		config.FromEnv("IAM_HOST"),
 		config.GetString("iam.currentUser"),
 	)
