@@ -20,9 +20,9 @@ const (
 
 func main() {
 	config := config.New()
-	httpClinet := httpclient.NewClient()
+	httpClient := httpclient.NewClient(&http.Client{})
 	iamClient := client.New(
-		httpClinet,
+		httpClient,
 		config.FromEnv("IAM_HOST"),
 		config.GetString("iam.currentUser"),
 	)
