@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/abhishekghoshhh/gms/pkg/logger"
-	"go.uber.org/zap"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
+
+	"github.com/abhishekghoshhh/gms/pkg/logger"
+	"go.uber.org/zap"
 )
 
 type Client struct {
@@ -47,6 +48,31 @@ func (*Client) Create(method, host, path string, headers map[string]string) (*ht
 
 	req, err := http.NewRequest(method, parsedUrl.String(), bytes.NewBuffer(nil))
 
+	if err != nil {
+		log.Fatal("Error creating new request", err)
+		return nil, err
+	}
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
+	return req, nil
+}
+func (*Client) CreateWithBody(method, host, path string, headers map[string]string, body ...any) (*http.Request, error) {
+	var err error
+	parsedUrl, _ := url.Parse(host)
+	parsedUrl.Path = path
+
+	var req *http.Request
+	if len(body) == 0 {
+		req, err = http.NewRequest(method, parsedUrl.String(), bytes.NewBuffer(nil))
+	} else {
+		reqBody, err := json.Marshal(body[0])
+		if err != nil {
+			log.Fatal("Error creating new request", err)
+			return nil, err
+		}
+		req, err = http.NewRequest(method, parsedUrl.String(), bytes.NewBuffer(reqBody))
+	}
 	if err != nil {
 		log.Fatal("Error creating new request", err)
 		return nil, err
