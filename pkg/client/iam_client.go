@@ -8,21 +8,29 @@ import (
 )
 
 type IamClient struct {
-	iamHost        string
-	scimProfileApi string
-	tokenApi       string
-	client         *httpclient.Client
+	iamHost                     string
+	scimProfileApi              string
+	tokenApi                    string
+	findAccountByCertSubjectApi string
+	getUserCountApi             string
+	fetchUsersInBatchApi        string
+	client                      *httpclient.Client
 }
 
-func New(client *httpclient.Client, iamHost, scimProfileApi, tokenApi string) (*IamClient, error) {
+func New(client *httpclient.Client, iamHost,
+	scimProfileApi, tokenApi, findAccountByCertSubjectApi, getUserCountApi, fetchUsersInBatchApi string) (*IamClient, error) {
+
 	if iamHost == "" {
 		return nil, errors.New("iam host is null, please set the iam host")
 	}
 	return &IamClient{
-		iamHost:        iamHost,
-		scimProfileApi: scimProfileApi,
-		tokenApi:       tokenApi,
-		client:         client,
+		iamHost,
+		scimProfileApi,
+		tokenApi,
+		findAccountByCertSubjectApi,
+		getUserCountApi,
+		fetchUsersInBatchApi,
+		client,
 	}, nil
 }
 

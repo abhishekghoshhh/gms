@@ -29,6 +29,9 @@ func main() {
 		os.Getenv("IAM_HOST"),
 		config.GetString("iam.apis.currentUser"),
 		config.GetString("iam.apis.fetchToken"),
+		config.GetString("iam.apis.findAccountByCertSubject"),
+		config.GetString("iam.apis.getUserCount"),
+		config.GetString("iam.apis.fetchUsersInBatch"),
 	)
 	if err != nil {
 		logger.Fatal(err.Error())
