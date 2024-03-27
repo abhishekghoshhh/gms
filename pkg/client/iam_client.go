@@ -33,5 +33,5 @@ func (iamClient *IamClient) FetchUser(token string) (*model.IamProfileResponse, 
 	if err != nil {
 		return nil, err
 	}
-	return httpclient.ResponseParser(response, &model.IamProfileResponse{})
+	return httpclient.Parse(response, &model.IamProfileResponse{})
 }

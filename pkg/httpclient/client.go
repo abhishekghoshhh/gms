@@ -57,6 +57,7 @@ func (*Client) Create(method, host, path string, headers map[string]string) (*ht
 	}
 	return req, nil
 }
+
 func (*Client) CreateWithBody(method, host, path string, headers map[string]string, body ...any) (*http.Request, error) {
 	var err error
 	parsedUrl, _ := url.Parse(host)
@@ -83,7 +84,7 @@ func (*Client) CreateWithBody(method, host, path string, headers map[string]stri
 	return req, nil
 }
 
-func ResponseParser[T any](data []byte, dataObject *T) (*T, error) {
+func Parse[T any](data []byte, dataObject *T) (*T, error) {
 	if err := json.Unmarshal(data, dataObject); err != nil {
 		logger.Error("error is " + err.Error())
 		return nil, errors.New("invalid response")
