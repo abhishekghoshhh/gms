@@ -13,6 +13,7 @@ type ClientCertFlow struct {
 	iamClient                 *client.IamClient
 	isPasswordGrantFlowActive bool
 	passwordGrantConfig       *model.PasswordGrantConfig
+	clientCredentialConfig    *model.ClientCredentialConfig
 }
 
 func (flow *ClientCertFlow) GetGroups(data *model.GmsModel) (string, error) {
@@ -35,14 +36,20 @@ func (flow *ClientCertFlow) fromPasswordGrant(data *model.GmsModel) (string, err
 	return "group1\ngroup2", nil
 }
 
-func NewClientCertFlow(iamClient *client.IamClient, isPasswordGrantFlowActive string, passwordGrantConfig *model.PasswordGrantConfig) (*ClientCertFlow, error) {
-	isActive := util.Bool(isPasswordGrantFlowActive)
-	if isActive && passwordGrantConfig.IsValid() {
-		return nil, errors.New("password grant flow is active but config is not valid")
+func NewClientCertFlow(iamClient *client.IamClient, isPasswordGrantFlowActive string,
+	passwordGrantConfig *model.PasswordGrantConfig, clientCredentialConfig *model.ClientCredentialConfig) (*ClientCertFlow, error) {
+
+	passwordGrantFlowEnabled := util.Bool(isPasswordGrantFlowActive)
+	if passwordGrantFlowEnabled && !passwordGrantConfig.IsValid() {
+		return nil, errors.New("password grant flow is active but password grant config is not valid")
+	} else if !passwordGrantFlowEnabled && !clientCredentialConfig.IsValid() {
+		return nil, errors.New("password grant flow is inactive but client credential config is not valid")
 	}
+
 	return &ClientCertFlow{
 		iamClient:                 iamClient,
-		isPasswordGrantFlowActive: isActive,
+		isPasswordGrantFlowActive: passwordGrantFlowEnabled,
 		passwordGrantConfig:       passwordGrantConfig,
+		clientCredentialConfig:    clientCredentialConfig,
 	}, nil
 }

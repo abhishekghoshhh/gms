@@ -7,4 +7,14 @@ proxyPort: 8080
 
 # iam apis
 iam:
-  currentUser: /scim/Me
+  apis:
+    currentUser: /scim/Me
+
+
+password-grant-flow:
+  isEnabled: true
+
+
+scim-read-client:
+  batchSize: 50
+  maxBatchCount: 5

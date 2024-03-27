@@ -1,6 +1,8 @@
 package client
 
 import (
+	"errors"
+
 	"github.com/abhishekghoshhh/gms/pkg/httpclient"
 	"github.com/abhishekghoshhh/gms/pkg/model"
 )
@@ -11,12 +13,15 @@ type IamClient struct {
 	client         *httpclient.Client
 }
 
-func New(client *httpclient.Client, iamHost, scimProfileApi string) *IamClient {
+func New(client *httpclient.Client, iamHost, scimProfileApi string) (*IamClient, error) {
+	if iamHost == "" {
+		return nil, errors.New("iam host is null, please set the iam host")
+	}
 	return &IamClient{
 		iamHost:        iamHost,
 		scimProfileApi: scimProfileApi,
 		client:         client,
-	}
+	}, nil
 }
 
 func (iamClient *IamClient) FetchUser(token string) (*model.IamProfileResponse, error) {

@@ -9,6 +9,7 @@ import (
 	"github.com/abhishekghoshhh/gms/pkg/config"
 	"github.com/abhishekghoshhh/gms/pkg/httpclient"
 	"github.com/abhishekghoshhh/gms/pkg/lib"
+	"github.com/abhishekghoshhh/gms/pkg/logger"
 	"github.com/abhishekghoshhh/gms/pkg/model"
 	"github.com/gorilla/mux"
 )
@@ -20,12 +21,17 @@ const (
 
 func main() {
 	config := config.New()
+
 	httpClient := httpclient.NewClient(http.DefaultClient)
-	iamClient := client.New(
+
+	iamClient, err := client.New(
 		httpClient,
-		config.FromEnv("IAM_HOST"),
-		config.GetString("iam.currentUser"),
+		os.Getenv("IAM_HOST"),
+		config.GetString("iam.apis.currentUser"),
 	)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
 
 	capabilityConfig := *model.NewCapabilitiesConfig(
 		*model.NewEntry("scheme", config.FromEnvOrConfig("TOMCAT_CONNECTOR_SCHEME", "scheme")),
@@ -43,15 +49,24 @@ func main() {
 		os.Getenv("PASSWORD_GRANT_FLOW_CLIENT_SECRET"),
 	)
 
+	clientCredentialConfig := model.NewClientCredentialConfig(
+		config.FromEnvOrConfig("SCIM_LIST_USER_BATCH_SIZE", "scim-read-client.batchSize"),
+		config.FromEnvOrConfig("SCIM_LIST_USER_MAX_BATCH_COUNT", "scim-read-client.maxBatchCount"),
+		os.Getenv("SCIM_READ_CLIENT_ID"),
+		os.Getenv("SCIM_READ_CLIENT_SECRET"),
+	)
+
 	authTokenFlow := lib.NewAuthTokenFlow(iamClient)
 	clientCertFlow, err := lib.NewClientCertFlow(
 		iamClient,
-		config.FromEnvOrDefault("PASSWORD_GRANT_FLOW_ACTIVE", "false"),
+		config.FromEnvOrConfig("PASSWORD_GRANT_FLOW_ACTIVE", "password-grant-flow.isEnabled"),
 		passwordGrantConfig,
+		clientCredentialConfig,
 	)
 	if err != nil {
-		panic(err.Error())
+		logger.Fatal(err.Error())
 	}
+
 	gmsService := lib.GmsService(authTokenFlow, clientCertFlow)
 	gmsApi := api.GroupMembershipCheck(gmsService)
 
