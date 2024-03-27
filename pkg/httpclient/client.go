@@ -41,13 +41,28 @@ func (c *Client) Send(req *http.Request) ([]byte, error) {
 	return body, nil
 }
 
-func (*Client) Create(method, host, path string, headers map[string]string) (*http.Request, error) {
-	parsedUrl, err := url.Parse(host)
+func (*Client) createUrl(host, path string, queryParams map[string]string) (*url.URL, error) {
+	newUrl, err := url.Parse(host)
+	if err != nil {
+		return nil, err
+	}
+	newUrl.Path = path
+	if queryParams != nil {
+		queries := newUrl.Query()
+		for key, val := range queryParams {
+			queries.Add(key, val)
+		}
+		newUrl.RawQuery = queries.Encode()
+	}
+	return newUrl, nil
+}
+
+func (c *Client) Create(method, host, path string, headers map[string]string) (*http.Request, error) {
+	parsedUrl, err := c.createUrl(host, path, nil)
 	if err != nil {
 		logger.Error("Error constructing the url" + err.Error())
 		return nil, err
 	}
-	parsedUrl.Path = path
 
 	req, err := http.NewRequest(method, parsedUrl.String(), bytes.NewBuffer(nil))
 
@@ -61,22 +76,13 @@ func (*Client) Create(method, host, path string, headers map[string]string) (*ht
 	return req, nil
 }
 
-func (*Client) CreateWithParams(method, host, path string, headers map[string]string, queryParams map[string]string, body any) (*http.Request, error) {
+func (c *Client) CreateWithParams(method, host, path string, headers map[string]string, queryParams map[string]string, body any) (*http.Request, error) {
 	var err error
 
-	parsedUrl, err := url.Parse(host)
+	parsedUrl, err := c.createUrl(host, path, queryParams)
 	if err != nil {
 		logger.Error("Error constructing the url" + err.Error())
 		return nil, err
-	}
-	parsedUrl.Path = path
-
-	if queryParams != nil {
-		queries := parsedUrl.Query()
-		for key, val := range queryParams {
-			queries.Add(key, val)
-		}
-		parsedUrl.RawQuery = queries.Encode()
 	}
 
 	var req *http.Request
