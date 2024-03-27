@@ -28,6 +28,7 @@ func main() {
 		httpClient,
 		os.Getenv("IAM_HOST"),
 		config.GetString("iam.apis.currentUser"),
+		config.GetString("iam.apis.fetchToken"),
 	)
 	if err != nil {
 		logger.Fatal(err.Error())

@@ -9,6 +9,7 @@ proxyPort: 8080
 iam:
   apis:
     currentUser: /scim/Me
+    fetchToken: /token
 
 
 password-grant-flow:

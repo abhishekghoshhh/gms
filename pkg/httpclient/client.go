@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 
@@ -26,7 +25,7 @@ func NewClient(client *http.Client) *Client {
 func (c *Client) Send(req *http.Request) ([]byte, error) {
 	resp, err := c.client.Do(req)
 	if err != nil {
-		log.Fatal("Error on response", err)
+		logger.Error("Error on response" + err.Error())
 		return nil, err
 	}
 	readingErr := resp.Body.Close()
@@ -36,7 +35,7 @@ func (c *Client) Send(req *http.Request) ([]byte, error) {
 	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
-		log.Fatal("Error reading response body:", err)
+		logger.Error("Error reading response body:" + err.Error())
 		return nil, err
 	}
 	return body, nil
@@ -44,12 +43,16 @@ func (c *Client) Send(req *http.Request) ([]byte, error) {
 
 func (*Client) Create(method, host, path string, headers map[string]string) (*http.Request, error) {
 	parsedUrl, err := url.Parse(host)
+	if err != nil {
+		logger.Error("Error constructing the url" + err.Error())
+		return nil, err
+	}
 	parsedUrl.Path = path
 
 	req, err := http.NewRequest(method, parsedUrl.String(), bytes.NewBuffer(nil))
 
 	if err != nil {
-		log.Fatal("Error creating new request", err)
+		logger.Error("Error creating new request" + err.Error())
 		return nil, err
 	}
 	for key, value := range headers {
@@ -60,22 +63,26 @@ func (*Client) Create(method, host, path string, headers map[string]string) (*ht
 
 func (*Client) CreateWithBody(method, host, path string, headers map[string]string, body ...any) (*http.Request, error) {
 	var err error
-	parsedUrl, _ := url.Parse(host)
+	parsedUrl, err := url.Parse(host)
+	if err != nil {
+		logger.Error("Error constructing the url" + err.Error())
+		return nil, err
+	}
 	parsedUrl.Path = path
 
 	var req *http.Request
-	if len(body) == 0 {
-		req, err = http.NewRequest(method, parsedUrl.String(), bytes.NewBuffer(nil))
-	} else {
-		reqBody, err := json.Marshal(body[0])
-		if err != nil {
-			log.Fatal("Error creating new request", err)
-			return nil, err
-		}
-		req, err = http.NewRequest(method, parsedUrl.String(), bytes.NewBuffer(reqBody))
+	var reqBody []byte = nil
+
+	if len(body) != 0 {
+		reqBody, err = json.Marshal(body[0])
 	}
 	if err != nil {
-		log.Fatal("Error creating new request", err)
+		logger.Error("Error marshaling request body" + err.Error())
+		return nil, err
+	}
+	req, err = http.NewRequest(method, parsedUrl.String(), bytes.NewBuffer(reqBody))
+	if err != nil {
+		logger.Error("Error creating new request" + err.Error())
 		return nil, err
 	}
 	for key, value := range headers {
@@ -89,6 +96,6 @@ func Parse[T any](data []byte, dataObject *T) (*T, error) {
 		logger.Error("error is " + err.Error())
 		return nil, errors.New("invalid response")
 	}
-	logger.Info("response is", zap.Any("resp", dataObject))
+	logger.Debug("response is", zap.Any("resp", dataObject))
 	return dataObject, nil
 }
