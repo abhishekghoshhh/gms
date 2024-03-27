@@ -26,6 +26,8 @@ func (gmsModel *GmsModel) Groups() []string {
 	return gmsModel.groups
 }
 
+func (gmsModel *GmsModel) Subject() string { return gmsModel.subjectDn }
+
 func GMS(token, subjectDn, clientCert string, groups []string) *GmsModel {
 	return &GmsModel{
 		token,
