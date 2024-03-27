@@ -41,13 +41,13 @@ func (iamClient *IamClient) FetchUser(token string) (*model.IamProfileResponse, 
 	return httpclient.Parse(response, &model.IamProfileResponse{})
 }
 
-func (iamClient *IamClient) FetchAccessTokenForPasswordGrantFlow(config *model.PasswordGrantConfig) (string, error) {
+func (iamClient *IamClient) FetchAccessTokenForPasswordGrantFlow(username, password, clientId, clientSecret string) (string, error) {
 	headers := make(map[string]string)
 	headers["grant_type"] = "password"
-	headers["username"] = config.UserName()
-	headers["password"] = config.Password()
-	headers["client_id"] = config.ClientId()
-	headers["client_secret"] = config.ClientSecret()
+	headers["username"] = username
+	headers["password"] = password
+	headers["client_id"] = clientId
+	headers["client_secret"] = clientSecret
 
 	return iamClient.getBearerToken(headers)
 }
