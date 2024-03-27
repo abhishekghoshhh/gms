@@ -53,6 +53,9 @@ func (iamClient *IamClient) FetchAccessTokenForPasswordGrantFlow(config *model.P
 }
 
 func (iamClient *IamClient) getBearerToken(headers map[string]string) (string, error) {
+	headers["Accept"] = "*/*"
+	headers["Content-Type"] = "x-www-form-urlencoded"
+
 	request, err := iamClient.client.Create("POST", iamClient.iamHost, "/token", headers)
 	if err != nil {
 		return "", err
