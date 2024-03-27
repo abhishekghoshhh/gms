@@ -139,3 +139,30 @@ func (iamClient *IamClient) getBearerToken(requestBody map[string]string) (*mode
 	}
 	return parsedResponse, nil
 }
+
+func (iamClient *IamClient) FetchUserByCertSubject(token, subject string) (*model.IamProfileListResponse, error) {
+	queryParams := map[string]string{
+		"certificateSubject": subject,
+	}
+
+	headers := map[string]string{
+		"Accept":        "*/*",
+		"Authorization": token,
+	}
+
+	request, err := iamClient.client.CreateWithParams("GET", iamClient.iamHost, iamClient.findAccountByCertSubjectApi, headers, queryParams, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := iamClient.client.Send(request)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedResponse, err := httpclient.Parse(response, &model.IamProfileListResponse{})
+	if err != nil {
+		return nil, err
+	}
+	return parsedResponse, nil
+}
