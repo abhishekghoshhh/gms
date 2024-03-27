@@ -61,8 +61,9 @@ func (*Client) Create(method, host, path string, headers map[string]string) (*ht
 	return req, nil
 }
 
-func (*Client) CreateWithBody(method, host, path string, headers map[string]string, body ...any) (*http.Request, error) {
+func (*Client) CreateWithParams(method, host, path string, headers map[string]string, queryParams map[string]string, body any) (*http.Request, error) {
 	var err error
+
 	parsedUrl, err := url.Parse(host)
 	if err != nil {
 		logger.Error("Error constructing the url" + err.Error())
@@ -70,11 +71,19 @@ func (*Client) CreateWithBody(method, host, path string, headers map[string]stri
 	}
 	parsedUrl.Path = path
 
+	if queryParams != nil {
+		queries := parsedUrl.Query()
+		for key, val := range queryParams {
+			queries.Add(key, val)
+		}
+		parsedUrl.RawQuery = queries.Encode()
+	}
+
 	var req *http.Request
 	var reqBody []byte = nil
 
-	if len(body) != 0 {
-		reqBody, err = json.Marshal(body[0])
+	if body != nil {
+		reqBody, err = json.Marshal(body)
 	}
 	if err != nil {
 		logger.Error("Error marshaling request body" + err.Error())

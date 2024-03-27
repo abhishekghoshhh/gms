@@ -2,9 +2,15 @@ package client
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/abhishekghoshhh/gms/pkg/httpclient"
 	"github.com/abhishekghoshhh/gms/pkg/model"
+)
+
+const (
+	GET  = "GET"
+	POST = "POST"
 )
 
 type IamClient struct {
@@ -35,11 +41,12 @@ func New(client *httpclient.Client, iamHost,
 }
 
 func (iamClient *IamClient) FetchUser(token string) (*model.IamProfileResponse, error) {
-	headers := make(map[string]string)
-	headers["Authorization"] = token
-	headers["Accept"] = "*/*"
+	headers := map[string]string{
+		"Authorization": token,
+		"Accept":        "*/*",
+	}
 
-	request, err := iamClient.client.Create("GET", iamClient.iamHost, iamClient.scimProfileApi, headers)
+	request, err := iamClient.client.Create(GET, iamClient.iamHost, iamClient.scimProfileApi, headers)
 	if err != nil {
 		return nil, err
 	}
@@ -49,6 +56,45 @@ func (iamClient *IamClient) FetchUser(token string) (*model.IamProfileResponse, 
 		return nil, err
 	}
 	return httpclient.Parse(response, &model.IamProfileResponse{})
+}
+
+func (iamClient *IamClient) FetchUserCount(token string) (*model.IamProfileListResponse, error) {
+	headers := map[string]string{
+		"Authorization": token,
+		"Accept":        "*/*",
+	}
+	request, err := iamClient.client.Create(GET, iamClient.iamHost, iamClient.getUserCountApi, headers)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := iamClient.client.Send(request)
+	if err != nil {
+		return nil, err
+	}
+	return httpclient.Parse(response, &model.IamProfileListResponse{})
+}
+
+func (iamClient *IamClient) FetchUsersInBatch(token string, startingIndex, count int) (*model.IamProfileListResponse, error) {
+	headers := map[string]string{
+		"Authorization": token,
+		"Accept":        "*/*",
+	}
+
+	queryParams := map[string]string{
+		"startIndex": strconv.Itoa(startingIndex),
+		"count":      strconv.Itoa(count),
+	}
+	request, err := iamClient.client.CreateWithParams(GET, iamClient.iamHost, iamClient.fetchUsersInBatchApi, headers, queryParams, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := iamClient.client.Send(request)
+	if err != nil {
+		return nil, err
+	}
+	return httpclient.Parse(response, &model.IamProfileListResponse{})
 }
 
 func (iamClient *IamClient) FetchAccessTokenForClientCredentialFlow(clientId, clientSecret string) (*model.ClientTokenResponse, error) {
@@ -77,7 +123,7 @@ func (iamClient *IamClient) getBearerToken(requestBody map[string]string) (*mode
 		"Content-Type": "x-www-form-urlencoded",
 	}
 
-	httpRequest, err := iamClient.client.CreateWithBody("POST", iamClient.iamHost, iamClient.tokenApi, headers, requestBody)
+	httpRequest, err := iamClient.client.CreateWithParams(POST, iamClient.iamHost, iamClient.tokenApi, headers, nil, requestBody)
 	if err != nil {
 		return nil, err
 	}
