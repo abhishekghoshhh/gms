@@ -7,6 +7,7 @@ import (
 	"github.com/abhishekghoshhh/gms/pkg/logger"
 	"github.com/abhishekghoshhh/gms/pkg/model"
 	"github.com/abhishekghoshhh/gms/pkg/util"
+	"go.uber.org/zap"
 )
 
 type ClientCertFlow struct {
@@ -27,6 +28,21 @@ func (flow *ClientCertFlow) GetGroups(data *model.GmsModel) (string, error) {
 func (flow *ClientCertFlow) fromClientCredential(data *model.GmsModel) (string, error) {
 	logger.Info("Client credential flow for GMS group search is executing")
 
+	clientId := flow.clientCredentialConfig.ClientId()
+	clientSecret := flow.clientCredentialConfig.ClientSecret()
+
+	accessToken, err := flow.iamClient.FetchAccessTokenForClientCredentialFlow(clientId, clientSecret)
+	if err != nil {
+		logger.Error("failed to fetch access token " + err.Error())
+		return "", errors.New("failed to fetch the accessToken")
+	}
+	profileListResponse, err := flow.iamClient.FetchUserCount(accessToken.AccessToken)
+	if err != nil {
+		logger.Error("unable to fetch user profile list " + err.Error())
+		return "", errors.New("unable to fetch user profile list")
+	}
+	logger.Debug("", zap.Int("user count is", profileListResponse.TotalResults))
+
 	return "group1\ngroup2", nil
 }
 
@@ -38,12 +54,9 @@ func (flow *ClientCertFlow) fromPasswordGrant(data *model.GmsModel) (string, err
 	adminName := flow.passwordGrantConfig.UserName()
 	adminPassword := flow.passwordGrantConfig.Password()
 
-	if clientId == "" && clientSecret == "" && adminName == "" && adminPassword == "" {
-		return "", errors.New("configuration missing for password grant flow")
-	}
-
 	accessToken, err := flow.iamClient.FetchAccessTokenForPasswordGrantFlow(adminName, adminPassword, clientId, clientSecret)
 	if err != nil {
+		logger.Error("failed to fetch access token " + err.Error())
 		return "", errors.New("failed to fetch the accessToken")
 	}
 
@@ -52,22 +65,20 @@ func (flow *ClientCertFlow) fromPasswordGrant(data *model.GmsModel) (string, err
 		return "", errors.New("failed to fetch userList")
 	}
 
-	if flow.hasNoMatchingUser(userListResponse) {
+	if hasNoMatchingUser(userListResponse) {
 		return "", errors.New("current client certificate is not linked with any user")
-	}
-
-	if flow.hasMoreThanOneMatchingUser(userListResponse) {
+	} else if hasMoreThanOneMatchingUser(userListResponse) {
 		return "", errors.New("current client certificate DN is linked with multiple users")
 	}
 
 	return userListResponse.Resources[0].GetMatchingGroups(data.Groups()), nil
 }
 
-func (flow *ClientCertFlow) hasNoMatchingUser(userListResponse *model.IamProfileListResponse) bool {
+func hasNoMatchingUser(userListResponse *model.IamProfileListResponse) bool {
 	return userListResponse != nil && len(userListResponse.Resources) == 0
 }
 
-func (flow *ClientCertFlow) hasMoreThanOneMatchingUser(userListResponse *model.IamProfileListResponse) bool {
+func hasMoreThanOneMatchingUser(userListResponse *model.IamProfileListResponse) bool {
 	return userListResponse != nil && userListResponse.Resources != nil && len(userListResponse.Resources) > 1
 }
 
