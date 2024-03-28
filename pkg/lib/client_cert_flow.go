@@ -2,6 +2,8 @@ package lib
 
 import (
 	"errors"
+	"strings"
+	"sync"
 
 	"github.com/abhishekghoshhh/gms/pkg/client"
 	"github.com/abhishekghoshhh/gms/pkg/logger"
@@ -43,7 +45,47 @@ func (flow *ClientCertFlow) fromClientCredential(data *model.GmsModel) (string, 
 	}
 	logger.Debug("", zap.Int("user count is", profileListResponse.TotalResults))
 
-	return "group1\ngroup2", nil
+	batch := model.NewBatch(
+		profileListResponse.TotalResults,
+		flow.clientCredentialConfig.BatchSize(),
+		flow.clientCredentialConfig.MaxBatchCount(),
+	)
+
+	dataSubject := data.Subject()
+	dataClientCert := strings.Replace(data.ClientCert(), "\t", "\n", -1)
+
+	var wg sync.WaitGroup
+	responseChannel := make(chan *model.IamProfileResponse, batch.Count)
+	for _, batchStartIdx := range batch.Indices {
+		wg.Add(1)
+		go func(subjectDn, clientCert, accessToken string, batchStart, size int) {
+			defer wg.Done()
+
+			batchProfileResponses, err := flow.iamClient.FetchUsersInBatch(accessToken, batchStart, size)
+			if err != nil {
+				logger.Error("internal error " + err.Error())
+				responseChannel <- nil
+			}
+			for _, profile := range batchProfileResponses.Resources {
+				if profile.HasMatchingCert(subjectDn, clientCert) {
+					logger.Info("Found the user with client cert")
+					responseChannel <- &profile
+				}
+			}
+			responseChannel <- nil
+
+		}(dataSubject, dataClientCert, accessToken.AccessToken, batchStartIdx, batch.Size)
+	}
+	wg.Wait()
+	close(responseChannel)
+
+	for profile := range responseChannel {
+		if profile != nil {
+			return profile.GetMatchingGroups(data.Groups()), nil
+		}
+	}
+
+	return "", errors.New("current client certificate is not linked with any user")
 }
 
 func (flow *ClientCertFlow) fromPasswordGrant(data *model.GmsModel) (string, error) {
@@ -67,8 +109,6 @@ func (flow *ClientCertFlow) fromPasswordGrant(data *model.GmsModel) (string, err
 
 	if hasNoMatchingUser(userListResponse) {
 		return "", errors.New("current client certificate is not linked with any user")
-	} else if hasMoreThanOneMatchingUser(userListResponse) {
-		return "", errors.New("current client certificate DN is linked with multiple users")
 	}
 
 	return userListResponse.Resources[0].GetMatchingGroups(data.Groups()), nil
@@ -76,10 +116,6 @@ func (flow *ClientCertFlow) fromPasswordGrant(data *model.GmsModel) (string, err
 
 func hasNoMatchingUser(userListResponse *model.IamProfileListResponse) bool {
 	return userListResponse != nil && len(userListResponse.Resources) == 0
-}
-
-func hasMoreThanOneMatchingUser(userListResponse *model.IamProfileListResponse) bool {
-	return userListResponse != nil && userListResponse.Resources != nil && len(userListResponse.Resources) > 1
 }
 
 func NewClientCertFlow(iamClient *client.IamClient, isPasswordGrantFlowActive string,

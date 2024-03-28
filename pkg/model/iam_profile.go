@@ -6,9 +6,10 @@ import (
 )
 
 type IamProfileResponse struct {
-	Id          string  `json:"id"`
-	DisplayName string  `json:"displayName"`
-	Groups      []Group `json:"groups"`
+	Id               string           `json:"id"`
+	DisplayName      string           `json:"displayName"`
+	Groups           []Group          `json:"groups"`
+	IndigoUserSchema IndigoUserSchema `json:"urn:indigo-dc:scim:schemas:IndigoUser"`
 }
 
 func (profile *IamProfileResponse) GetMatchingGroups(requestedGroups []string) string {
@@ -45,6 +46,32 @@ func (*IamProfileResponse) getUniqueGroups(requestedGroups []string) []string {
 	return filteredGroups
 }
 
+func (profile *IamProfileResponse) HasMatchingCert(subjectDn, clientCert string) bool {
+	if len(profile.IndigoUserSchema.Certificates) == 0 {
+		return false
+	}
+	for _, cert := range profile.IndigoUserSchema.Certificates {
+		if cert.SubjectDn == subjectDn && cert.PemEncodedCertificate == clientCert {
+			return true
+		}
+	}
+	return false
+}
+
 type Group struct {
 	Display string `json:"display"`
+}
+
+type IndigoUserSchema struct {
+	Certificates []UserCertificate `json:"certificates"`
+}
+type UserCertificate struct {
+	Primary               bool   `json:"primary"`
+	SubjectDn             string `json:"subjectDn"`
+	IssuerDn              string `json:"issuerDn"`
+	PemEncodedCertificate string `json:"pemEncodedCertificate"`
+	Display               string `json:"display"`
+	Created               string `json:"created"`
+	LastModified          string `json:"lastModified"`
+	HasProxyCertificate   bool   `json:"hasProxyCertificate"`
 }
