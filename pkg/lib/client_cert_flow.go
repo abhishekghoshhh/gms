@@ -19,12 +19,56 @@ type ClientCertFlow struct {
 	clientCredentialConfig    *model.ClientCredentialConfig
 }
 
+func NewClientCertFlow(iamClient *client.IamClient, isPasswordGrantFlowActive string,
+	passwordGrantConfig *model.PasswordGrantConfig, clientCredentialConfig *model.ClientCredentialConfig) (*ClientCertFlow, error) {
+
+	passwordGrantFlowEnabled := util.Bool(isPasswordGrantFlowActive)
+	if passwordGrantFlowEnabled && !passwordGrantConfig.IsValid() {
+		return nil, errors.New("password grant flow is active but password grant config is not valid")
+	} else if !passwordGrantFlowEnabled && !clientCredentialConfig.IsValid() {
+		return nil, errors.New("password grant flow is inactive but client credential config is not valid")
+	}
+
+	return &ClientCertFlow{
+		iamClient:                 iamClient,
+		isPasswordGrantFlowActive: passwordGrantFlowEnabled,
+		passwordGrantConfig:       passwordGrantConfig,
+		clientCredentialConfig:    clientCredentialConfig,
+	}, nil
+}
+
 func (flow *ClientCertFlow) GetGroups(data *model.GmsModel) (string, error) {
 	if flow.isPasswordGrantFlowActive {
 		return flow.fromPasswordGrant(data)
 	} else {
 		return flow.fromClientCredential(data)
 	}
+}
+
+func (flow *ClientCertFlow) fromPasswordGrant(data *model.GmsModel) (string, error) {
+	logger.Info("Password grant flow for GMS group search is executing")
+
+	clientId := flow.passwordGrantConfig.ClientId()
+	clientSecret := flow.passwordGrantConfig.ClientSecret()
+	adminName := flow.passwordGrantConfig.UserName()
+	adminPassword := flow.passwordGrantConfig.Password()
+
+	accessToken, err := flow.iamClient.FetchAccessTokenForPasswordGrantFlow(adminName, adminPassword, clientId, clientSecret)
+	if err != nil {
+		logger.Error("failed to fetch access token " + err.Error())
+		return "", errors.New("failed to fetch the accessToken")
+	}
+
+	userListResponse, err := flow.iamClient.FetchUserByCertSubject(accessToken.AccessToken, data.Subject())
+	if err != nil {
+		return "", errors.New("failed to fetch userList")
+	}
+
+	if len(userListResponse.Resources) == 0 {
+		return "", errors.New("current client certificate is not linked with any user")
+	}
+
+	return userListResponse.Resources[0].GetMatchingGroups(data.Groups()), nil
 }
 
 func (flow *ClientCertFlow) fromClientCredential(data *model.GmsModel) (string, error) {
@@ -51,22 +95,29 @@ func (flow *ClientCertFlow) fromClientCredential(data *model.GmsModel) (string, 
 		flow.clientCredentialConfig.MaxBatchCount(),
 	)
 
-	dataSubject := data.Subject()
-	dataClientCert := strings.Replace(data.ClientCert(), "\t", "\n", -1)
+	subjectDn := data.Subject()
+	clientCert := strings.Replace(data.ClientCert(), "\t", "\n", -1)
 
 	var wg sync.WaitGroup
 	responseChannel := make(chan *model.IamProfileResponse, batch.Count)
+
 	for _, batchStartIdx := range batch.Indices {
 		wg.Add(1)
-		go func(subjectDn, clientCert, accessToken string, batchStart, size int) {
+
+		go func(batchStart int) {
 			defer wg.Done()
 
-			batchProfileResponses, err := flow.iamClient.FetchUsersInBatch(accessToken, batchStart, size)
+			profileList, err := flow.iamClient.FetchUsersInBatch(
+				accessToken.AccessToken,
+				batchStart,
+				batch.Size,
+			)
+
 			if err != nil {
 				logger.Error("internal error " + err.Error())
 				responseChannel <- nil
 			}
-			for _, profile := range batchProfileResponses.Resources {
+			for _, profile := range profileList.Resources {
 				if profile.HasMatchingCert(subjectDn, clientCert) {
 					logger.Info("Found the user with client cert")
 					responseChannel <- &profile
@@ -74,7 +125,7 @@ func (flow *ClientCertFlow) fromClientCredential(data *model.GmsModel) (string, 
 			}
 			responseChannel <- nil
 
-		}(dataSubject, dataClientCert, accessToken.AccessToken, batchStartIdx, batch.Size)
+		}(batchStartIdx)
 	}
 	wg.Wait()
 	close(responseChannel)
@@ -86,52 +137,4 @@ func (flow *ClientCertFlow) fromClientCredential(data *model.GmsModel) (string, 
 	}
 
 	return "", errors.New("current client certificate is not linked with any user")
-}
-
-func (flow *ClientCertFlow) fromPasswordGrant(data *model.GmsModel) (string, error) {
-	logger.Info("Password grant flow for GMS group search is executing")
-
-	clientId := flow.passwordGrantConfig.ClientId()
-	clientSecret := flow.passwordGrantConfig.ClientSecret()
-	adminName := flow.passwordGrantConfig.UserName()
-	adminPassword := flow.passwordGrantConfig.Password()
-
-	accessToken, err := flow.iamClient.FetchAccessTokenForPasswordGrantFlow(adminName, adminPassword, clientId, clientSecret)
-	if err != nil {
-		logger.Error("failed to fetch access token " + err.Error())
-		return "", errors.New("failed to fetch the accessToken")
-	}
-
-	userListResponse, err := flow.iamClient.FetchUserByCertSubject(accessToken.AccessToken, data.Subject())
-	if err != nil {
-		return "", errors.New("failed to fetch userList")
-	}
-
-	if hasNoMatchingUser(userListResponse) {
-		return "", errors.New("current client certificate is not linked with any user")
-	}
-
-	return userListResponse.Resources[0].GetMatchingGroups(data.Groups()), nil
-}
-
-func hasNoMatchingUser(userListResponse *model.IamProfileListResponse) bool {
-	return userListResponse != nil && len(userListResponse.Resources) == 0
-}
-
-func NewClientCertFlow(iamClient *client.IamClient, isPasswordGrantFlowActive string,
-	passwordGrantConfig *model.PasswordGrantConfig, clientCredentialConfig *model.ClientCredentialConfig) (*ClientCertFlow, error) {
-
-	passwordGrantFlowEnabled := util.Bool(isPasswordGrantFlowActive)
-	if passwordGrantFlowEnabled && !passwordGrantConfig.IsValid() {
-		return nil, errors.New("password grant flow is active but password grant config is not valid")
-	} else if !passwordGrantFlowEnabled && !clientCredentialConfig.IsValid() {
-		return nil, errors.New("password grant flow is inactive but client credential config is not valid")
-	}
-
-	return &ClientCertFlow{
-		iamClient:                 iamClient,
-		isPasswordGrantFlowActive: passwordGrantFlowEnabled,
-		passwordGrantConfig:       passwordGrantConfig,
-		clientCredentialConfig:    clientCredentialConfig,
-	}, nil
 }
