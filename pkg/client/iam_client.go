@@ -9,6 +9,11 @@ import (
 	"github.com/abhishekghoshhh/gms/pkg/model"
 )
 
+const (
+	MediaTypeAll          = "*/*"
+	ApplicationUrlEncoded = "x-www-form-urlencoded"
+)
+
 type IamClient struct {
 	iamHost                     string
 	scimProfileApi              string
@@ -39,7 +44,7 @@ func New(client *httpclient.Client, iamHost,
 func (iamClient *IamClient) FetchUser(token string) (*model.IamProfileResponse, error) {
 	headers := map[string]string{
 		"Authorization": token,
-		"Accept":        "*/*",
+		"Accept":        MediaTypeAll,
 	}
 
 	request, err := iamClient.client.Create(http.MethodGet, iamClient.iamHost, iamClient.scimProfileApi, headers)
@@ -57,7 +62,7 @@ func (iamClient *IamClient) FetchUser(token string) (*model.IamProfileResponse, 
 func (iamClient *IamClient) FetchUserCount(token string) (*model.IamProfileListResponse, error) {
 	headers := map[string]string{
 		"Authorization": token,
-		"Accept":        "*/*",
+		"Accept":        MediaTypeAll,
 	}
 	request, err := iamClient.client.Create(http.MethodGet, iamClient.iamHost, iamClient.getUserCountApi, headers)
 	if err != nil {
@@ -74,7 +79,7 @@ func (iamClient *IamClient) FetchUserCount(token string) (*model.IamProfileListR
 func (iamClient *IamClient) FetchUsersInBatch(token string, startingIndex, count int) (*model.IamProfileListResponse, error) {
 	headers := map[string]string{
 		"Authorization": token,
-		"Accept":        "*/*",
+		"Accept":        MediaTypeAll,
 	}
 
 	queryParams := map[string]string{
@@ -115,8 +120,8 @@ func (iamClient *IamClient) FetchAccessTokenForPasswordGrantFlow(username, passw
 
 func (iamClient *IamClient) getBearerToken(requestBody map[string]string) (*model.ClientTokenResponse, error) {
 	headers := map[string]string{
-		"Accept":       "*/*",
-		"Content-Type": "x-www-form-urlencoded",
+		"Accept":       MediaTypeAll,
+		"Content-Type": ApplicationUrlEncoded,
 	}
 
 	httpRequest, err := iamClient.client.CreateWithParams(http.MethodPost, iamClient.iamHost, iamClient.tokenApi, headers, nil, requestBody)
@@ -142,7 +147,7 @@ func (iamClient *IamClient) FetchUserByCertSubject(token, subject string) (*mode
 	}
 
 	headers := map[string]string{
-		"Accept":        "*/*",
+		"Accept":        MediaTypeAll,
 		"Authorization": token,
 	}
 
