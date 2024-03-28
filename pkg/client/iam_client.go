@@ -2,15 +2,11 @@ package client
 
 import (
 	"errors"
+	"net/http"
 	"strconv"
 
 	"github.com/abhishekghoshhh/gms/pkg/httpclient"
 	"github.com/abhishekghoshhh/gms/pkg/model"
-)
-
-const (
-	GET  = "GET"
-	POST = "POST"
 )
 
 type IamClient struct {
@@ -46,7 +42,7 @@ func (iamClient *IamClient) FetchUser(token string) (*model.IamProfileResponse, 
 		"Accept":        "*/*",
 	}
 
-	request, err := iamClient.client.Create(GET, iamClient.iamHost, iamClient.scimProfileApi, headers)
+	request, err := iamClient.client.Create(http.MethodGet, iamClient.iamHost, iamClient.scimProfileApi, headers)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +59,7 @@ func (iamClient *IamClient) FetchUserCount(token string) (*model.IamProfileListR
 		"Authorization": token,
 		"Accept":        "*/*",
 	}
-	request, err := iamClient.client.Create(GET, iamClient.iamHost, iamClient.getUserCountApi, headers)
+	request, err := iamClient.client.Create(http.MethodGet, iamClient.iamHost, iamClient.getUserCountApi, headers)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +81,7 @@ func (iamClient *IamClient) FetchUsersInBatch(token string, startingIndex, count
 		"startIndex": strconv.Itoa(startingIndex),
 		"count":      strconv.Itoa(count),
 	}
-	request, err := iamClient.client.CreateWithParams(GET, iamClient.iamHost, iamClient.fetchUsersInBatchApi, headers, queryParams, nil)
+	request, err := iamClient.client.CreateWithParams(http.MethodGet, iamClient.iamHost, iamClient.fetchUsersInBatchApi, headers, queryParams, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +119,7 @@ func (iamClient *IamClient) getBearerToken(requestBody map[string]string) (*mode
 		"Content-Type": "x-www-form-urlencoded",
 	}
 
-	httpRequest, err := iamClient.client.CreateWithParams(POST, iamClient.iamHost, iamClient.tokenApi, headers, nil, requestBody)
+	httpRequest, err := iamClient.client.CreateWithParams(http.MethodPost, iamClient.iamHost, iamClient.tokenApi, headers, nil, requestBody)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +146,7 @@ func (iamClient *IamClient) FetchUserByCertSubject(token, subject string) (*mode
 		"Authorization": token,
 	}
 
-	request, err := iamClient.client.CreateWithParams("GET", iamClient.iamHost, iamClient.findAccountByCertSubjectApi, headers, queryParams, nil)
+	request, err := iamClient.client.CreateWithParams(http.MethodGet, iamClient.iamHost, iamClient.findAccountByCertSubjectApi, headers, queryParams, nil)
 	if err != nil {
 		return nil, err
 	}

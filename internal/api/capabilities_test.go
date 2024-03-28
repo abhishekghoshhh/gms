@@ -20,7 +20,7 @@ func TestGetTemplate(t *testing.T) {
 
 		capabilitiesApi := Capabilities(mockCapabilityBuilder)
 
-		req := httptest.NewRequest("GET", "/template", nil)
+		req := httptest.NewRequest(http.MethodGet, "/template", nil)
 
 		rr := httptest.NewRecorder()
 

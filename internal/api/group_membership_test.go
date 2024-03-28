@@ -21,7 +21,7 @@ func TestGetGroups(t *testing.T) {
 
 		groupMembershipApi := GroupMembershipCheck(gmsFlow)
 
-		req := httptest.NewRequest("GET", "/template", nil)
+		req := httptest.NewRequest(http.MethodGet, "/template", nil)
 
 		rr := httptest.NewRecorder()
 
@@ -51,7 +51,7 @@ func TestGetGroups(t *testing.T) {
 
 		groupMembershipApi := GroupMembershipCheck(gmsFlow)
 
-		req := httptest.NewRequest("GET", "/template", nil)
+		req := httptest.NewRequest(http.MethodGet, "/template", nil)
 
 		rr := httptest.NewRecorder()
 
