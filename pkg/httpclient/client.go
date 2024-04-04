@@ -39,6 +39,10 @@ func (c *Client) Send(req *http.Request) ([]byte, error) {
 	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
+		if errors.Is(req.Context().Err(), context.DeadlineExceeded) {
+			logger.Error("Deadline exceeded, request failed")
+			return nil, req.Context().Err()
+		}
 		logger.Error("Error reading response body:" + err.Error())
 		return nil, err
 	}
