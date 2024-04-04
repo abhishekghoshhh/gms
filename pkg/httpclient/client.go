@@ -29,6 +29,10 @@ func NewClient(timeout time.Duration) *Client {
 func (c *Client) send(req *http.Request) ([]byte, error) {
 	resp, err := c.client.Do(req)
 	if err != nil {
+		if errors.Is(req.Context().Err(), context.DeadlineExceeded) {
+			logger.Error("Deadline exceeded, request failed")
+			return nil, req.Context().Err()
+		}
 		logger.Error("Error on response" + err.Error())
 		return nil, err
 	}
@@ -39,30 +43,10 @@ func (c *Client) send(req *http.Request) ([]byte, error) {
 	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
-		if errors.Is(req.Context().Err(), context.DeadlineExceeded) {
-			logger.Error("Deadline exceeded, request failed")
-			return nil, req.Context().Err()
-		}
 		logger.Error("Error reading response body:" + err.Error())
 		return nil, err
 	}
 	return body, nil
-}
-
-func (*Client) createUrl(host, path string, queryParams map[string]string) (*url.URL, error) {
-	newUrl, err := url.Parse(host)
-	if err != nil {
-		return nil, err
-	}
-	newUrl.Path = path
-	if queryParams != nil {
-		queries := newUrl.Query()
-		for key, val := range queryParams {
-			queries.Add(key, val)
-		}
-		newUrl.RawQuery = queries.Encode()
-	}
-	return newUrl, nil
 }
 
 func (c *Client) createRequest(method, url string, body *bytes.Buffer) (*http.Request, error) {
@@ -76,13 +60,21 @@ func (c *Client) createRequest(method, url string, body *bytes.Buffer) (*http.Re
 }
 
 func (c *Client) MakeRequest(method, host, path string, headers map[string]string, queryParams map[string]string, body any) ([]byte, error) {
-	parsedUrl, err := c.createUrl(host, path, queryParams)
+	parsedUrl, err := url.Parse(host)
 	if err != nil {
 		logger.Error("Error constructing the url" + err.Error())
 		return nil, err
 	}
 
-	var req *http.Request
+	parsedUrl.Path = path
+	if queryParams != nil {
+		queries := parsedUrl.Query()
+		for key, val := range queryParams {
+			queries.Add(key, val)
+		}
+		parsedUrl.RawQuery = queries.Encode()
+	}
+
 	var reqBody []byte = nil
 
 	if body != nil {
@@ -93,7 +85,7 @@ func (c *Client) MakeRequest(method, host, path string, headers map[string]strin
 		}
 	}
 
-	req, err = c.createRequest(method, parsedUrl.String(), bytes.NewBuffer(reqBody))
+	req, err := c.createRequest(method, parsedUrl.String(), bytes.NewBuffer(reqBody))
 	if err != nil {
 		logger.Error("Error creating new request" + err.Error())
 		return nil, err
