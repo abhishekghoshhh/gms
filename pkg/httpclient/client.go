@@ -2,23 +2,27 @@ package httpclient
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/abhishekghoshhh/gms/pkg/logger"
 	"go.uber.org/zap"
 )
 
 type Client struct {
-	client *http.Client
+	client  *http.Client
+	timeout time.Duration
 }
 
-func NewClient(client *http.Client) *Client {
+func NewClient(timeout time.Duration) *Client {
 	return &Client{
-		client,
+		client:  http.DefaultClient,
+		timeout: timeout,
 	}
 }
 
@@ -64,7 +68,7 @@ func (c *Client) Create(method, host, path string, headers map[string]string) (*
 		return nil, err
 	}
 
-	req, err := http.NewRequest(method, parsedUrl.String(), bytes.NewBuffer(nil))
+	req, err := c.createRequest(method, parsedUrl.String(), bytes.NewBuffer(nil))
 
 	if err != nil {
 		logger.Error("Error creating new request" + err.Error())
@@ -74,6 +78,16 @@ func (c *Client) Create(method, host, path string, headers map[string]string) (*
 		req.Header.Set(key, value)
 	}
 	return req, nil
+}
+
+func (c *Client) createRequest(method, url string, body *bytes.Buffer) (*http.Request, error) {
+	deadline := time.Now().Add(c.timeout * time.Second)
+
+	ctx, cancel := context.WithDeadline(context.Background(), deadline)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, method, url, body)
+	return req, err
 }
 
 func (c *Client) CreateWithParams(method, host, path string, headers map[string]string, queryParams map[string]string, body any) (*http.Request, error) {
@@ -95,7 +109,7 @@ func (c *Client) CreateWithParams(method, host, path string, headers map[string]
 		logger.Error("Error marshaling request body" + err.Error())
 		return nil, err
 	}
-	req, err = http.NewRequest(method, parsedUrl.String(), bytes.NewBuffer(reqBody))
+	req, err = c.createRequest(method, parsedUrl.String(), bytes.NewBuffer(reqBody))
 	if err != nil {
 		logger.Error("Error creating new request" + err.Error())
 		return nil, err

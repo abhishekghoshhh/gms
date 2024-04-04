@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/abhishekghoshhh/gms/internal/api"
 	"github.com/abhishekghoshhh/gms/pkg/client"
@@ -21,8 +22,9 @@ const (
 
 func main() {
 	config := config.New()
+	timeout := 2 * time.Second
 
-	httpClient := httpclient.NewClient(http.DefaultClient)
+	httpClient := httpclient.NewClient(timeout)
 
 	iamClient, err := client.New(
 		httpClient,

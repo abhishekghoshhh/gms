@@ -2,11 +2,10 @@ package client
 
 import (
 	"errors"
-	"net/http"
-	"strconv"
-
 	"github.com/abhishekghoshhh/gms/pkg/httpclient"
 	"github.com/abhishekghoshhh/gms/pkg/model"
+	"net/http"
+	"strconv"
 )
 
 const (
