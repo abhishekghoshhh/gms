@@ -46,12 +46,8 @@ func (iamClient *IamClient) FetchUser(token string) (*model.IamProfileResponse, 
 		"Accept":        MediaTypeAll,
 	}
 
-	request, err := iamClient.client.Create(http.MethodGet, iamClient.iamHost, iamClient.scimProfileApi, headers)
-	if err != nil {
-		return nil, err
-	}
+	response, err := iamClient.client.MakeRequest(http.MethodGet, iamClient.iamHost, iamClient.scimProfileApi, headers, nil, nil)
 
-	response, err := iamClient.client.Send(request)
 	if err != nil {
 		return nil, err
 	}
@@ -63,12 +59,11 @@ func (iamClient *IamClient) FetchUserCount(token string) (*model.IamProfileListR
 		"Authorization": token,
 		"Accept":        MediaTypeAll,
 	}
-	request, err := iamClient.client.Create(http.MethodGet, iamClient.iamHost, iamClient.getUserCountApi, headers)
+	response, err := iamClient.client.MakeRequest(http.MethodGet, iamClient.iamHost, iamClient.getUserCountApi, headers, nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	response, err := iamClient.client.Send(request)
 	if err != nil {
 		return nil, err
 	}
@@ -85,12 +80,8 @@ func (iamClient *IamClient) FetchUsersInBatch(token string, startingIndex, count
 		"startIndex": strconv.Itoa(startingIndex),
 		"count":      strconv.Itoa(count),
 	}
-	request, err := iamClient.client.CreateWithParams(http.MethodGet, iamClient.iamHost, iamClient.fetchUsersInBatchApi, headers, queryParams, nil)
-	if err != nil {
-		return nil, err
-	}
+	response, err := iamClient.client.MakeRequest(http.MethodGet, iamClient.iamHost, iamClient.fetchUsersInBatchApi, headers, queryParams, nil)
 
-	response, err := iamClient.client.Send(request)
 	if err != nil {
 		return nil, err
 	}
@@ -123,12 +114,7 @@ func (iamClient *IamClient) getBearerToken(requestBody map[string]string) (*mode
 		"Content-Type": ApplicationUrlEncoded,
 	}
 
-	httpRequest, err := iamClient.client.CreateWithParams(http.MethodPost, iamClient.iamHost, iamClient.tokenApi, headers, nil, requestBody)
-	if err != nil {
-		return nil, err
-	}
-
-	httpResponse, err := iamClient.client.Send(httpRequest)
+	httpResponse, err := iamClient.client.MakeRequest(http.MethodPost, iamClient.iamHost, iamClient.tokenApi, headers, nil, requestBody)
 	if err != nil {
 		return nil, err
 	}
@@ -150,12 +136,7 @@ func (iamClient *IamClient) FetchUserByCertSubject(token, subject string) (*mode
 		"Authorization": token,
 	}
 
-	request, err := iamClient.client.CreateWithParams(http.MethodGet, iamClient.iamHost, iamClient.findAccountByCertSubjectApi, headers, queryParams, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	response, err := iamClient.client.Send(request)
+	response, err := iamClient.client.MakeRequest(http.MethodGet, iamClient.iamHost, iamClient.findAccountByCertSubjectApi, headers, queryParams, nil)
 	if err != nil {
 		return nil, err
 	}

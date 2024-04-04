@@ -26,7 +26,7 @@ func NewClient(timeout time.Duration) *Client {
 	}
 }
 
-func (c *Client) Send(req *http.Request) ([]byte, error) {
+func (c *Client) send(req *http.Request) ([]byte, error) {
 	resp, err := c.client.Do(req)
 	if err != nil {
 		logger.Error("Error on response" + err.Error())
@@ -65,25 +65,6 @@ func (*Client) createUrl(host, path string, queryParams map[string]string) (*url
 	return newUrl, nil
 }
 
-func (c *Client) Create(method, host, path string, headers map[string]string) (*http.Request, error) {
-	parsedUrl, err := c.createUrl(host, path, nil)
-	if err != nil {
-		logger.Error("Error constructing the url" + err.Error())
-		return nil, err
-	}
-
-	req, err := c.createRequest(method, parsedUrl.String(), bytes.NewBuffer(nil))
-
-	if err != nil {
-		logger.Error("Error creating new request" + err.Error())
-		return nil, err
-	}
-	for key, value := range headers {
-		req.Header.Set(key, value)
-	}
-	return req, nil
-}
-
 func (c *Client) createRequest(method, url string, body *bytes.Buffer) (*http.Request, error) {
 	deadline := time.Now().Add(c.timeout * time.Second)
 
@@ -94,9 +75,7 @@ func (c *Client) createRequest(method, url string, body *bytes.Buffer) (*http.Re
 	return req, err
 }
 
-func (c *Client) CreateWithParams(method, host, path string, headers map[string]string, queryParams map[string]string, body any) (*http.Request, error) {
-	var err error
-
+func (c *Client) MakeRequest(method, host, path string, headers map[string]string, queryParams map[string]string, body any) ([]byte, error) {
 	parsedUrl, err := c.createUrl(host, path, queryParams)
 	if err != nil {
 		logger.Error("Error constructing the url" + err.Error())
@@ -108,11 +87,12 @@ func (c *Client) CreateWithParams(method, host, path string, headers map[string]
 
 	if body != nil {
 		reqBody, err = json.Marshal(body)
+		if err != nil {
+			logger.Error("Error marshaling request body" + err.Error())
+			return nil, err
+		}
 	}
-	if err != nil {
-		logger.Error("Error marshaling request body" + err.Error())
-		return nil, err
-	}
+
 	req, err = c.createRequest(method, parsedUrl.String(), bytes.NewBuffer(reqBody))
 	if err != nil {
 		logger.Error("Error creating new request" + err.Error())
@@ -121,7 +101,7 @@ func (c *Client) CreateWithParams(method, host, path string, headers map[string]
 	for key, value := range headers {
 		req.Header.Set(key, value)
 	}
-	return req, nil
+	return c.send(req)
 }
 
 func Parse[T any](data []byte, dataObject *T) (*T, error) {
