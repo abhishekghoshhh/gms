@@ -1,0 +1,26 @@
+---
+version: "3.8"
+services:
+  gms:
+    image: abhishek1009/gms-go
+    container_name: gms
+    environment:
+      - IAM_HOST=dev.iam.io
+    networks:
+      - gms-network
+  
+  nginx:
+    image: nginx:latest
+    container_name: iam-proxy
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 8081:80
+      - 8444:443
+    depends_on:
+      - iam
+    networks:
+      - gms-network
+
+networks:
+  gms-network:

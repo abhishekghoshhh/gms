@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/abhishekghoshhh/gms/pkg/logger"
-	"go.uber.org/zap"
 )
 
 type Client struct {
@@ -33,13 +32,11 @@ func (c *Client) send(req *http.Request) ([]byte, error) {
 			logger.Error("Deadline exceeded, request failed")
 			return nil, req.Context().Err()
 		}
-		logger.Error("Error on response" + err.Error())
+		logger.Error("Error on response " + err.Error())
 		return nil, err
 	}
-	readingErr := resp.Body.Close()
-	if readingErr != nil {
-		return nil, readingErr
-	}
+	defer resp.Body.Close()
+
 	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
@@ -50,12 +47,12 @@ func (c *Client) send(req *http.Request) ([]byte, error) {
 }
 
 func (c *Client) createRequest(method, url string, body *bytes.Buffer) (*http.Request, error) {
-	deadline := time.Now().Add(c.timeout * time.Second)
+	deadline := time.Now().Add(c.timeout)
 
-	ctx, cancel := context.WithDeadline(context.Background(), deadline)
+	_, cancel := context.WithDeadline(context.Background(), deadline)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, method, url, body)
+	req, err := http.NewRequest(method, url, body)
 	return req, err
 }
 
@@ -85,6 +82,8 @@ func (c *Client) MakeRequest(method, host, path string, headers map[string]strin
 		}
 	}
 
+	logger.Debug("calling " + parsedUrl.String())
+
 	req, err := c.createRequest(method, parsedUrl.String(), bytes.NewBuffer(reqBody))
 	if err != nil {
 		logger.Error("Error creating new request" + err.Error())
@@ -94,13 +93,4 @@ func (c *Client) MakeRequest(method, host, path string, headers map[string]strin
 		req.Header.Set(key, value)
 	}
 	return c.send(req)
-}
-
-func Parse[T any](data []byte, dataObject *T) (*T, error) {
-	if err := json.Unmarshal(data, dataObject); err != nil {
-		logger.Error("error is " + err.Error())
-		return nil, errors.New("invalid response")
-	}
-	logger.Debug("response is", zap.Any("resp", dataObject))
-	return dataObject, nil
 }

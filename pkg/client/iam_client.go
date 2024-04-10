@@ -2,10 +2,11 @@ package client
 
 import (
 	"errors"
-	"github.com/abhishekghoshhh/gms/pkg/httpclient"
-	"github.com/abhishekghoshhh/gms/pkg/model"
 	"net/http"
 	"strconv"
+
+	"github.com/abhishekghoshhh/gms/pkg/httpclient"
+	"github.com/abhishekghoshhh/gms/pkg/model"
 )
 
 const (
@@ -46,12 +47,10 @@ func (iamClient *IamClient) FetchUser(token string) (*model.IamProfileResponse, 
 		"Accept":        MediaTypeAll,
 	}
 
-	response, err := iamClient.client.MakeRequest(http.MethodGet, iamClient.iamHost, iamClient.scimProfileApi, headers, nil, nil)
-
-	if err != nil {
-		return nil, err
-	}
-	return httpclient.Parse(response, &model.IamProfileResponse{})
+	return httpclient.Send(
+		httpclient.Request(iamClient.iamHost, iamClient.scimProfileApi, http.MethodGet).Headers(headers).Timeout(2),
+		&model.IamProfileResponse{},
+	)
 }
 
 func (iamClient *IamClient) FetchUserCount(token string) (*model.IamProfileListResponse, error) {
@@ -60,10 +59,6 @@ func (iamClient *IamClient) FetchUserCount(token string) (*model.IamProfileListR
 		"Accept":        MediaTypeAll,
 	}
 	response, err := iamClient.client.MakeRequest(http.MethodGet, iamClient.iamHost, iamClient.getUserCountApi, headers, nil, nil)
-	if err != nil {
-		return nil, err
-	}
-
 	if err != nil {
 		return nil, err
 	}

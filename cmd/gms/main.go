@@ -80,5 +80,6 @@ func main() {
 	router.HandleFunc("/capabilities", capabilitiesApi.GetTemplate)
 	router.HandleFunc("/gms/search", gmsApi.GetGroups)
 
+	logger.Info("GMS application is running on " + SERVER_HOST + ":" + SERVER_PORT)
 	http.ListenAndServe(SERVER_HOST+":"+SERVER_PORT, router)
 }
