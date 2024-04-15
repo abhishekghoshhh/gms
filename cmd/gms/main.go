@@ -3,12 +3,11 @@ package main
 import (
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/abhishekghoshhh/gms/internal/api"
 	"github.com/abhishekghoshhh/gms/pkg/client"
 	"github.com/abhishekghoshhh/gms/pkg/config"
-	"github.com/abhishekghoshhh/gms/pkg/httpclient"
+	httpclient "github.com/abhishekghoshhh/gms/pkg/http"
 	"github.com/abhishekghoshhh/gms/pkg/lib"
 	"github.com/abhishekghoshhh/gms/pkg/logger"
 	"github.com/abhishekghoshhh/gms/pkg/model"
@@ -22,9 +21,8 @@ const (
 
 func main() {
 	config := config.New()
-	timeout := 2 * time.Second
 
-	httpClient := httpclient.NewClient(timeout)
+	httpClient := httpclient.NewClient()
 
 	iamClient, err := client.New(
 		httpClient,
@@ -34,6 +32,7 @@ func main() {
 		config.GetString("iam.apis.findAccountByCertSubject"),
 		config.GetString("iam.apis.getUserCount"),
 		config.GetString("iam.apis.fetchUsersInBatch"),
+		config.GetString("iam.apis.fetchUserById"),
 	)
 	if err != nil {
 		logger.Fatal(err.Error())

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/abhishekghoshhh/gms/pkg/httpclient"
+	httpclient "github.com/abhishekghoshhh/gms/pkg/http"
 	"github.com/abhishekghoshhh/gms/pkg/model"
 )
 
@@ -21,11 +21,13 @@ type IamClient struct {
 	findAccountByCertSubjectApi string
 	getUserCountApi             string
 	fetchUsersInBatchApi        string
-	client                      *httpclient.Client
+	fetchUserByIdApi            string
+	client                      *httpclient.CustomClient
 }
 
-func New(client *httpclient.Client, iamHost,
-	scimProfileApi, tokenApi, findAccountByCertSubjectApi, getUserCountApi, fetchUsersInBatchApi string) (*IamClient, error) {
+func New(client *httpclient.CustomClient,
+	iamHost,
+	scimProfileApi, tokenApi, findAccountByCertSubjectApi, getUserCountApi, fetchUsersInBatchApi, fetchUserByIdApi string) (*IamClient, error) {
 
 	if iamHost == "" {
 		return nil, errors.New("iam host is null, please set the iam host")
@@ -37,6 +39,7 @@ func New(client *httpclient.Client, iamHost,
 		findAccountByCertSubjectApi,
 		getUserCountApi,
 		fetchUsersInBatchApi,
+		fetchUserByIdApi,
 		client,
 	}, nil
 }
@@ -46,11 +49,20 @@ func (iamClient *IamClient) FetchUser(token string) (*model.IamProfileResponse, 
 		"Authorization": token,
 		"Accept":        MediaTypeAll,
 	}
+	req := httpclient.
+		Request(
+			iamClient.iamHost,
+			iamClient.scimProfileApi,
+			http.MethodGet,
+		).
+		Headers(headers).
+		Timeout(2) //timeout needs to be changed
 
-	return httpclient.Send(
-		httpclient.Request(iamClient.iamHost, iamClient.scimProfileApi, http.MethodGet).Headers(headers).Timeout(2),
-		&model.IamProfileResponse{},
-	)
+	if resp, err := iamClient.client.Send(req); err != nil {
+		return nil, err
+	} else {
+		return httpclient.Parse(resp, &model.IamProfileResponse{})
+	}
 }
 
 func (iamClient *IamClient) FetchUserCount(token string) (*model.IamProfileListResponse, error) {
@@ -58,11 +70,21 @@ func (iamClient *IamClient) FetchUserCount(token string) (*model.IamProfileListR
 		"Authorization": token,
 		"Accept":        MediaTypeAll,
 	}
-	response, err := iamClient.client.MakeRequest(http.MethodGet, iamClient.iamHost, iamClient.getUserCountApi, headers, nil, nil)
-	if err != nil {
+
+	req := httpclient.
+		Request(
+			iamClient.iamHost,
+			iamClient.getUserCountApi,
+			http.MethodGet,
+		).
+		Headers(headers).
+		Timeout(2) //timeout needs to be changed
+
+	if resp, err := iamClient.client.Send(req); err != nil {
 		return nil, err
+	} else {
+		return httpclient.Parse(resp, &model.IamProfileListResponse{})
 	}
-	return httpclient.Parse(response, &model.IamProfileListResponse{})
 }
 
 func (iamClient *IamClient) FetchUsersInBatch(token string, startingIndex, count int) (*model.IamProfileListResponse, error) {
@@ -75,12 +97,22 @@ func (iamClient *IamClient) FetchUsersInBatch(token string, startingIndex, count
 		"startIndex": strconv.Itoa(startingIndex),
 		"count":      strconv.Itoa(count),
 	}
-	response, err := iamClient.client.MakeRequest(http.MethodGet, iamClient.iamHost, iamClient.fetchUsersInBatchApi, headers, queryParams, nil)
 
-	if err != nil {
+	req := httpclient.
+		Request(
+			iamClient.iamHost,
+			iamClient.fetchUsersInBatchApi,
+			http.MethodGet,
+		).
+		Headers(headers).
+		QueryParams(queryParams).
+		Timeout(2) //timeout needs to be changed
+
+	if resp, err := iamClient.client.Send(req); err != nil {
 		return nil, err
+	} else {
+		return httpclient.Parse(resp, &model.IamProfileListResponse{})
 	}
-	return httpclient.Parse(response, &model.IamProfileListResponse{})
 }
 
 func (iamClient *IamClient) FetchAccessTokenForClientCredentialFlow(clientId, clientSecret string) (*model.ClientTokenResponse, error) {
@@ -109,16 +141,21 @@ func (iamClient *IamClient) getBearerToken(requestBody map[string]string) (*mode
 		"Content-Type": ApplicationUrlEncoded,
 	}
 
-	httpResponse, err := iamClient.client.MakeRequest(http.MethodPost, iamClient.iamHost, iamClient.tokenApi, headers, nil, requestBody)
-	if err != nil {
-		return nil, err
-	}
+	req := httpclient.
+		Request(
+			iamClient.iamHost,
+			iamClient.tokenApi,
+			http.MethodPost,
+		).
+		Headers(headers).
+		Body(requestBody).
+		Timeout(2) //timeout needs to be changed
 
-	parsedResponse, err := httpclient.Parse(httpResponse, &model.ClientTokenResponse{})
-	if err != nil {
+	if resp, err := iamClient.client.Send(req); err != nil {
 		return nil, err
+	} else {
+		return httpclient.Parse(resp, &model.ClientTokenResponse{})
 	}
-	return parsedResponse, nil
 }
 
 func (iamClient *IamClient) FetchUserByCertSubject(token, subject string) (*model.IamProfileListResponse, error) {
@@ -131,14 +168,46 @@ func (iamClient *IamClient) FetchUserByCertSubject(token, subject string) (*mode
 		"Authorization": token,
 	}
 
-	response, err := iamClient.client.MakeRequest(http.MethodGet, iamClient.iamHost, iamClient.findAccountByCertSubjectApi, headers, queryParams, nil)
-	if err != nil {
+	req := httpclient.
+		Request(
+			iamClient.iamHost,
+			iamClient.findAccountByCertSubjectApi,
+			http.MethodGet,
+		).
+		Headers(headers).
+		QueryParams(queryParams).
+		Timeout(2) //timeout needs to be changed
+
+	if resp, err := iamClient.client.Send(req); err != nil {
 		return nil, err
+	} else {
+		return httpclient.Parse(resp, &model.IamProfileListResponse{})
+	}
+}
+
+func (iamClient *IamClient) FetchUserById(token, userId string) (*model.IamProfileListResponse, error) {
+	queryParams := map[string]string{
+		"userId": userId,
 	}
 
-	parsedResponse, err := httpclient.Parse(response, &model.IamProfileListResponse{})
-	if err != nil {
-		return nil, err
+	headers := map[string]string{
+		"Accept":        MediaTypeAll,
+		"Authorization": token,
 	}
-	return parsedResponse, nil
+
+	req := httpclient.
+		Request(
+			iamClient.iamHost,
+			iamClient.findAccountByCertSubjectApi,
+			http.MethodGet,
+		).
+		Headers(headers).
+		QueryParams(queryParams).
+		Timeout(2) //timeout needs to be changed
+
+	if resp, err := iamClient.client.Send(req); err != nil {
+		return nil, err
+	} else {
+		return httpclient.Parse(resp, &model.IamProfileListResponse{})
+	}
 }

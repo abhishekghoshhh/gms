@@ -10,6 +10,7 @@ iam:
   apis:
     currentUser: /scim/Me
     fetchToken: /token
+    fetchUserById: /scim/Users/{userId}
     findAccountByCertSubject: /iam/account/find/bycertsubject?certificateSubject={certificateSubject}
     getUserCount: /scim/Users?attributes=id&count=1
     fetchUsersInBatch: /scim/Users?attributes=displayName,groups,urn:indigo-dc:scim:schemas:IndigoUser.certificates&startIndex={startIndex}&count={count}
