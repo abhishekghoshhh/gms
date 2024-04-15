@@ -19,17 +19,17 @@ var (
 )
 
 const (
-	MAX_TIMEOUT = 300 * time.Second
+	MaxTimeout = 300 * time.Second
 )
 
-func Send[T any](config *requestConfiguration, responseType *T) (*T, error) {
-	url, err := config.prepareUrl()
+func Send[T any](config *RequestConfiguration, responseType *T) (*T, error) {
+	parsedUrl, err := config.prepareUrl()
 	if err != nil {
 		return nil, err
 	}
-	logger.Debug("calling " + url.String())
+	logger.Debug("calling " + parsedUrl.String())
 
-	reqBody, err := config.prerpareBody()
+	reqBody, err := config.prepareBody()
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func Send[T any](config *requestConfiguration, responseType *T) (*T, error) {
 
 	ctx, cancel := prepareContext(config.timeout)
 	defer cancel()
-	req, err = http.NewRequestWithContext(ctx, config.method, url.String(), bytes.NewBuffer(reqBody))
+	req, err = http.NewRequestWithContext(ctx, config.method, parsedUrl.String(), bytes.NewBuffer(reqBody))
 
 	if err != nil {
 		logger.Error("Error creating new request" + err.Error())
@@ -88,13 +88,13 @@ func Parse[T any](data []byte, dataObject *T) (*T, error) {
 
 func prepareContext(timeout time.Duration) (context.Context, context.CancelFunc) {
 	if timeout == 0 {
-		timeout = MAX_TIMEOUT
+		timeout = MaxTimeout
 	}
 	deadline := time.Now().Add(timeout)
 	return context.WithDeadline(context.Background(), deadline)
 }
 
-type requestConfiguration struct {
+type RequestConfiguration struct {
 	host        string
 	path        string
 	method      string
@@ -104,48 +104,48 @@ type requestConfiguration struct {
 	timeout     time.Duration
 }
 
-func Request(host, path, method string) *requestConfiguration {
-	return &requestConfiguration{
+func Request(host, path, method string) *RequestConfiguration {
+	return &RequestConfiguration{
 		host:   host,
 		path:   path,
 		method: method,
 	}
 }
-func (config *requestConfiguration) Headers(headers map[string]string) *requestConfiguration {
+func (config *RequestConfiguration) Headers(headers map[string]string) *RequestConfiguration {
 	config.headers = headers
 	return config
 }
-func (config *requestConfiguration) QueryParams(queryParams map[string]string) *requestConfiguration {
+func (config *RequestConfiguration) QueryParams(queryParams map[string]string) *RequestConfiguration {
 	config.queryParams = queryParams
 	return config
 }
-func (config *requestConfiguration) Body(body any) *requestConfiguration {
+func (config *RequestConfiguration) Body(body any) *RequestConfiguration {
 	config.body = body
 	return config
 }
-func (config *requestConfiguration) Timeout(timeout int) *requestConfiguration {
+func (config *RequestConfiguration) Timeout(timeout int) *RequestConfiguration {
 	config.timeout = time.Duration(timeout) * time.Second
 	return config
 }
 
-func (config *requestConfiguration) prepareUrl() (*url.URL, error) {
-	url, err := url.Parse(config.host)
+func (config *RequestConfiguration) prepareUrl() (*url.URL, error) {
+	newUrl, err := url.Parse(config.host)
 	if err != nil {
-		logger.Error("Error constructing the url " + err.Error())
+		logger.Error("Error constructing the newUrl " + err.Error())
 		return nil, err
 	}
-	url.Path = config.path
+	newUrl.Path = config.path
 	if config.queryParams != nil {
-		queries := url.Query()
+		queries := newUrl.Query()
 		for key, val := range config.queryParams {
 			queries.Add(key, val)
 		}
-		url.RawQuery = queries.Encode()
+		newUrl.RawQuery = queries.Encode()
 	}
-	return url, nil
+	return newUrl, nil
 }
 
-func (config *requestConfiguration) prerpareBody() ([]byte, error) {
+func (config *RequestConfiguration) prepareBody() ([]byte, error) {
 	if config.body == nil {
 		return nil, nil
 	}
