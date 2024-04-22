@@ -4,22 +4,16 @@ scheme: http
 proxyName: localhost
 proxyPort: 8080
 
-
-# iam apis
+# iam api configs
 iam:
-  apis:
-    currentUser: /scim/Me
-    fetchToken: /token
-    fetchUserById: /scim/Users/{userId}
-    findAccountByCertSubject: /iam/account/find/bycertsubject?certificateSubject={certificateSubject}
-    getUserCount: /scim/Users?attributes=id&count=1
-    fetchUsersInBatch: /scim/Users?attributes=displayName,groups,urn:indigo-dc:scim:schemas:IndigoUser.certificates&startIndex={startIndex}&count={count}
-
-
-password-grant-flow:
-  isEnabled: true
-
-
-scim-read-client:
-  batchSize: 50
-  maxBatchCount: 5
+  userinfo:
+    path: /userinfo
+    timeout: 5
+  clientCredentialToken: 
+    path: /token
+    timeout: 5
+    clientId: ${CLIENT_CREDETIAL_ID}
+    clientSecret: ${CLIENT_CREDETIAL_SECRET}
+  fetchUserById:
+    path: /scim/Users/{userId}
+    timeout: 10

@@ -19,6 +19,10 @@ const (
 	SERVER_PORT = "8080"
 )
 
+func mainCopy() {
+	config := config.New()
+}
+
 func main() {
 	config := config.New()
 
