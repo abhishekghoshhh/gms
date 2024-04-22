@@ -76,6 +76,8 @@ func (iamClient *IamClient) FetchAccessTokenForClientCredentialFlow(clientId, cl
 	return iamClient.getBearerToken(request)
 }
 func (iamClient *IamClient) getBearerToken(requestBody map[string]string) (*model.ClientTokenResponse, error) {
+	apiConfig := iamClient.Config["clientCredentialToken"]
+
 	headers := map[string]string{
 		"Accept":       MediaTypeAll,
 		"Content-Type": ApplicationUrlEncoded,
@@ -83,13 +85,13 @@ func (iamClient *IamClient) getBearerToken(requestBody map[string]string) (*mode
 
 	req := httpclient.
 		Request(
-			iamClient.iamHost,
-			iamClient.tokenApi,
+			iamClient.Host,
+			apiConfig.Path,
 			http.MethodPost,
 		).
 		Headers(headers).
 		Body(requestBody).
-		Timeout(2) //timeout needs to be changed
+		Timeout(apiConfig.Timeout) //timeout needs to be changed
 
 	if resp, err := iamClient.client.Send(req); err != nil {
 		return nil, err
@@ -97,3 +99,4 @@ func (iamClient *IamClient) getBearerToken(requestBody map[string]string) (*mode
 		return httpclient.Parse(resp, &model.ClientTokenResponse{})
 	}
 }
+
