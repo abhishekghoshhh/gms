@@ -67,15 +67,17 @@ func (iamClient *IamClient) FetchUserById(token, userId string) (*model.IamProfi
 	}
 }
 
-func (iamClient *IamClient) FetchAccessTokenForClientCredentialFlow(clientId, clientSecret string) (*model.ClientTokenResponse, error) {
+func (iamClient *IamClient) FetchClientCredentialToken() (*model.ClientTokenResponse, error) {
+	apiConfig := iamClient.Config["clientCredentialToken"]
+
 	request := map[string]string{
 		"grant_type":    "client_credentials",
-		"client_id":     clientId,
-		"client_secret": clientSecret,
+		"client_id":     apiConfig.ClientId,
+		"client_secret": apiConfig.ClientSecret,
 	}
-	return iamClient.getBearerToken(request)
+	return iamClient.getToken(request)
 }
-func (iamClient *IamClient) getBearerToken(requestBody map[string]string) (*model.ClientTokenResponse, error) {
+func (iamClient *IamClient) getToken(requestBody map[string]string) (*model.ClientTokenResponse, error) {
 	apiConfig := iamClient.Config["clientCredentialToken"]
 
 	headers := map[string]string{
@@ -91,7 +93,7 @@ func (iamClient *IamClient) getBearerToken(requestBody map[string]string) (*mode
 		).
 		Headers(headers).
 		Body(requestBody).
-		Timeout(apiConfig.Timeout) //timeout needs to be changed
+		Timeout(apiConfig.Timeout)
 
 	if resp, err := iamClient.client.Send(req); err != nil {
 		return nil, err
@@ -99,4 +101,27 @@ func (iamClient *IamClient) getBearerToken(requestBody map[string]string) (*mode
 		return httpclient.Parse(resp, &model.ClientTokenResponse{})
 	}
 }
+func (iamClient *IamClient) FetchUserInfo(token string) (*model.UserInfo, error) {
+	apiConfig := iamClient.Config["userinfo"]
 
+	headers := map[string]string{
+		"Accept":        MediaTypeAll,
+		"Content-Type":  ApplicationUrlEncoded,
+		"Authorization": token,
+	}
+
+	req := httpclient.
+		Request(
+			iamClient.Host,
+			apiConfig.Path,
+			http.MethodPost,
+		).
+		Headers(headers).
+		Timeout(apiConfig.Timeout)
+
+	if resp, err := iamClient.client.Send(req); err != nil {
+		return nil, err
+	} else {
+		return httpclient.Parse(resp, &model.UserInfo{})
+	}
+}

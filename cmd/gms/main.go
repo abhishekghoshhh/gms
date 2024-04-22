@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -19,11 +20,13 @@ const (
 	SERVER_PORT = "8080"
 )
 
-func mainCopy() {
-	config := config.New()
+func main() {
+	c := config.New()
+	fmt.Println(c.GetString("iam.clientCredentialToken.clientSecret"))
+	fmt.Println(c.GetString("iam.clientCredentialToken.clientId"))
 }
 
-func main() {
+func mainCopy() {
 	config := config.New()
 
 	httpClient := httpclient.NewClient()
