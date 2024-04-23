@@ -9,7 +9,7 @@ iam:
   userinfo:
     path: /userinfo
     timeout: 5
-  clientCredentialToken: 
+  clientCredentialToken:
     path: /token
     timeout: 5
     clientId: ${CLIENT_CREDETIAL_ID:client_id}

@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/abhishekghoshhh/gms/pkg/iamclient"
+	"github.com/mitchellh/mapstructure"
 	"net/http"
 	"os"
 
@@ -24,6 +26,15 @@ func main() {
 	c := config.New()
 	fmt.Println(c.GetString("iam.clientCredentialToken.clientSecret"))
 	fmt.Println(c.GetString("iam.clientCredentialToken.clientId"))
+
+	var configs iamclient.IamConfigs
+	err := mapstructure.Decode(c.Get("iam"), &configs.Config)
+
+	if err != nil {
+		logger.Fatal("error in loading config")
+	}
+	client1 := iamclient.NewIamClient(os.Getenv("IAM_HOST"), &configs)
+	fmt.Println(client1.Config["clientcredentialtoken"].ClientSecret)
 }
 
 func mainCopy() {

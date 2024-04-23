@@ -91,7 +91,7 @@ func (iamClient *IamClient) getToken(requestBody map[string]string) (*model.Clie
 			apiConfig.Path,
 			http.MethodPost,
 		).
-		Headers(headers).
+		Headers(headers).	
 		Body(requestBody).
 		Timeout(apiConfig.Timeout)
 
