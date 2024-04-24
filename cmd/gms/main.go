@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/abhishekghoshhh/gms/pkg/handlers"
 	"github.com/abhishekghoshhh/gms/pkg/iamclient"
 	"github.com/mitchellh/mapstructure"
 	"net/http"
@@ -33,8 +34,12 @@ func main() {
 	if err != nil {
 		logger.Fatal("error in loading config")
 	}
+
 	client1 := iamclient.NewIamClient(os.Getenv("IAM_HOST"), &configs)
-	fmt.Println(client1.Config["clientcredentialtoken"].ClientSecret)
+	handler := handlers.NewHandler(*client1)
+
+	router := mux.NewRouter()
+	router.HandleFunc("/gms/search", handler.GetGroups)
 }
 
 func mainCopy() {

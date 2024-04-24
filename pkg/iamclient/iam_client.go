@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/abhishekghoshhh/gms/pkg/config"
 	httpclient "github.com/abhishekghoshhh/gms/pkg/http"
 	"github.com/abhishekghoshhh/gms/pkg/model"
 )
@@ -18,7 +17,8 @@ type IamConfigs struct {
 	Config map[string]*IamConfig `mapstructure:"iam"`
 }
 type IamConfig struct {
-	*config.ApiConfig
+	Path    string
+	Timeout int
 	ClientId     string
 	ClientSecret string
 }
@@ -91,7 +91,7 @@ func (iamClient *IamClient) getToken(requestBody map[string]string) (*model.Clie
 			apiConfig.Path,
 			http.MethodPost,
 		).
-		Headers(headers).	
+		Headers(headers).
 		Body(requestBody).
 		Timeout(apiConfig.Timeout)
 
