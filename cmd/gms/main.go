@@ -4,8 +4,9 @@ import (
 	"os"
 
 	"github.com/abhishekghoshhh/gms/internal/api"
+
 	"github.com/abhishekghoshhh/gms/pkg/config"
-	"github.com/abhishekghoshhh/gms/pkg/iamclient"
+	"github.com/abhishekghoshhh/gms/pkg/iam"
 	"github.com/gorilla/mux"
 )
 
@@ -17,10 +18,10 @@ const (
 func main() {
 	c := config.New()
 
-	iamConfig := make(map[string]*iamclient.ApiConfig)
+	iamConfig := make(map[string]*iam.IamConfig)
 	c.Decode("iam", &iamConfig)
 
-	iamClient := iamclient.NewIamClient(
+	iamClient := iam.New(
 		os.Getenv("IAM_HOST"),
 		iamConfig,
 	)

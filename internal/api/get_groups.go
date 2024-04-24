@@ -3,15 +3,15 @@ package api
 import (
 	"net/http"
 
-	"github.com/abhishekghoshhh/gms/pkg/iamclient"
+	"github.com/abhishekghoshhh/gms/pkg/iam"
 	"github.com/abhishekghoshhh/gms/pkg/logger"
 )
 
 type Handler struct {
-	iamClient *iamclient.IamClient
+	iamClient *iam.IamClient
 }
 
-func NewHandler(iamClient *iamclient.IamClient) *Handler {
+func NewHandler(iamClient *iam.IamClient) *Handler {
 	return &Handler{
 		iamClient: iamClient,
 	}

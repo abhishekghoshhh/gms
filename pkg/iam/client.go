@@ -1,4 +1,4 @@
-package iamclient
+package iam
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ const (
 	ApplicationUrlEncoded = "x-www-form-urlencoded"
 )
 
-type ApiConfig struct {
+type IamConfig struct {
 	Path         string
 	Timeout      int
 	ClientId     string
@@ -22,11 +22,11 @@ type ApiConfig struct {
 
 type IamClient struct {
 	Host   string
-	Config map[string]*ApiConfig
+	Config map[string]*IamConfig
 	client *httpclient.CustomClient
 }
 
-func NewIamClient(host string, iamConfig map[string]*ApiConfig) *IamClient {
+func New(host string, iamConfig map[string]*IamConfig) *IamClient {
 	return &IamClient{
 		Host:   host,
 		Config: iamConfig,
