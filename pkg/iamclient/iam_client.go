@@ -13,26 +13,23 @@ const (
 	ApplicationUrlEncoded = "x-www-form-urlencoded"
 )
 
-type IamConfigs struct {
-	Config map[string]*IamConfig `mapstructure:"iam"`
-}
-type IamConfig struct {
-	Path    string
-	Timeout int
+type ApiConfig struct {
+	Path         string
+	Timeout      int
 	ClientId     string
 	ClientSecret string
 }
 
 type IamClient struct {
 	Host   string
-	Config map[string]*IamConfig
+	Config map[string]*ApiConfig
 	client *httpclient.CustomClient
 }
 
-func NewIamClient(host string, iamConfigs *IamConfigs) *IamClient {
+func NewIamClient(host string, iamConfig map[string]*ApiConfig) *IamClient {
 	return &IamClient{
 		Host:   host,
-		Config: iamConfigs.Config,
+		Config: iamConfig,
 	}
 }
 

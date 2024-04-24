@@ -1,18 +1,19 @@
-package handlers
+package api
 
 import (
+	"net/http"
+
 	"github.com/abhishekghoshhh/gms/pkg/iamclient"
 	"github.com/abhishekghoshhh/gms/pkg/logger"
-	"net/http"
 )
 
 type Handler struct {
 	iamClient *iamclient.IamClient
 }
 
-func NewHandler(client iamclient.IamClient) *Handler {
+func NewHandler(iamClient *iamclient.IamClient) *Handler {
 	return &Handler{
-		iamClient: &client,
+		iamClient: iamClient,
 	}
 }
 
@@ -22,7 +23,7 @@ func (h *Handler) GetGroups(responseWriter http.ResponseWriter, request *http.Re
 
 	getGroups, err := h.getGroups(token, groups)
 	if err != nil {
-		 responseWriter.WriteHeader(400)
+		responseWriter.WriteHeader(400)
 	}
 	_, err = responseWriter.Write([]byte(getGroups))
 	if err != nil {
@@ -54,4 +55,3 @@ func (h *Handler) getGroups(token string, groups []string) (string, error) {
 
 	return matchingGroups, nil
 }
-

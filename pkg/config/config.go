@@ -1,10 +1,12 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
 
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 )
 
@@ -43,6 +45,24 @@ func New() *Config {
 		Viper: config,
 	}
 }
+func (config *Config) decode(key string, data any) error {
+	innerConfig := config.Get(key)
+	if innerConfig == nil {
+		return errors.New("unable to find key in the config, " + key)
+	}
+	err := mapstructure.Decode(innerConfig, data)
+	if err != nil {
+		return errors.New("error in loading config for the key, " + key)
+	}
+	return nil
+}
+
+func (config *Config) Decode(key string, data any) {
+	if err := config.decode(key, data); err != nil {
+		panic(err.Error())
+	}
+}
+
 func loadConfig(resourcesDir string, configName string) *viper.Viper {
 	config := viper.New()
 	config.SetConfigName(configName)
