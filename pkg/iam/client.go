@@ -66,7 +66,7 @@ func (iamClient *IamClient) FetchUserById(token, userId string) (*model.IamProfi
 	}
 }
 
-func (iamClient *IamClient) FetchClientCredentialToken() (*model.ClientTokenResponse, error) {
+func (iamClient *IamClient) FetchClientCredentialToken() (*model.Token, error) {
 	apiConfig := iamClient.Config["clientcredentialtoken"]
 
 	request := map[string]string{
@@ -76,7 +76,7 @@ func (iamClient *IamClient) FetchClientCredentialToken() (*model.ClientTokenResp
 	}
 	return iamClient.getToken(request)
 }
-func (iamClient *IamClient) getToken(requestBody map[string]string) (*model.ClientTokenResponse, error) {
+func (iamClient *IamClient) getToken(requestBody map[string]string) (*model.Token, error) {
 	apiConfig := iamClient.Config["clientcredentialtoken"]
 
 	headers := map[string]string{
@@ -98,7 +98,7 @@ func (iamClient *IamClient) getToken(requestBody map[string]string) (*model.Clie
 	if resp, err := iamClient.Client.Send(req); err != nil {
 		return nil, err
 	} else {
-		return httpclient.Parse(resp, &model.ClientTokenResponse{})
+		return httpclient.Parse(resp, &model.Token{})
 	}
 }
 func (iamClient *IamClient) FetchUserInfo(token string) (*model.UserInfo, error) {
