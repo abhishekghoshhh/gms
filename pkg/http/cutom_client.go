@@ -1,4 +1,4 @@
-	package http
+package http
 
 import (
 	"bytes"
@@ -38,7 +38,7 @@ func (CustomClient) Send(conf *RequestConf) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger.Debug("calling " + url.String())
+	logger.Info("calling " + url.String())
 
 	reqBody, err := conf.prerpareBody()
 	if err != nil {

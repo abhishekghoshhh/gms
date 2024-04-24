@@ -2,6 +2,7 @@ package iam
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	httpclient "github.com/abhishekghoshhh/gms/pkg/http"
@@ -23,18 +24,19 @@ type IamConfig struct {
 type IamClient struct {
 	Host   string
 	Config map[string]*IamConfig
-	client *httpclient.CustomClient
+	Client *httpclient.CustomClient
 }
 
-func New(host string, iamConfig map[string]*IamConfig) *IamClient {
+func New(host string, iamConfig map[string]*IamConfig, client *httpclient.CustomClient) *IamClient {
 	return &IamClient{
 		Host:   host,
 		Config: iamConfig,
+		Client: client,
 	}
 }
 
 func (iamClient *IamClient) FetchUserById(token, userId string) (*model.IamProfileResponse, error) {
-	apiConfig, ok := iamClient.Config["fetchUserById"]
+	apiConfig, ok := iamClient.Config["fetchuserbyid"]
 	if !ok {
 		return nil, errors.New("invalid Api Config")
 	}
@@ -57,7 +59,7 @@ func (iamClient *IamClient) FetchUserById(token, userId string) (*model.IamProfi
 		QueryParams(queryParams).
 		Timeout(apiConfig.Timeout)
 
-	if resp, err := iamClient.client.Send(req); err != nil {
+	if resp, err := iamClient.Client.Send(req); err != nil {
 		return nil, err
 	} else {
 		return httpclient.Parse(resp, &model.IamProfileResponse{})
@@ -65,7 +67,7 @@ func (iamClient *IamClient) FetchUserById(token, userId string) (*model.IamProfi
 }
 
 func (iamClient *IamClient) FetchClientCredentialToken() (*model.ClientTokenResponse, error) {
-	apiConfig := iamClient.Config["clientCredentialToken"]
+	apiConfig := iamClient.Config["clientcredentialtoken"]
 
 	request := map[string]string{
 		"grant_type":    "client_credentials",
@@ -75,7 +77,7 @@ func (iamClient *IamClient) FetchClientCredentialToken() (*model.ClientTokenResp
 	return iamClient.getToken(request)
 }
 func (iamClient *IamClient) getToken(requestBody map[string]string) (*model.ClientTokenResponse, error) {
-	apiConfig := iamClient.Config["clientCredentialToken"]
+	apiConfig := iamClient.Config["clientcredentialtoken"]
 
 	headers := map[string]string{
 		"Accept":       MediaTypeAll,
@@ -92,14 +94,16 @@ func (iamClient *IamClient) getToken(requestBody map[string]string) (*model.Clie
 		Body(requestBody).
 		Timeout(apiConfig.Timeout)
 
-	if resp, err := iamClient.client.Send(req); err != nil {
+	if resp, err := iamClient.Client.Send(req); err != nil {
 		return nil, err
 	} else {
 		return httpclient.Parse(resp, &model.ClientTokenResponse{})
 	}
 }
 func (iamClient *IamClient) FetchUserInfo(token string) (*model.UserInfo, error) {
+	fmt.Println("iamClient.Config", iamClient.Config)
 	apiConfig := iamClient.Config["userinfo"]
+	fmt.Println("apiConfig", apiConfig)
 
 	headers := map[string]string{
 		"Accept":        MediaTypeAll,
@@ -111,12 +115,12 @@ func (iamClient *IamClient) FetchUserInfo(token string) (*model.UserInfo, error)
 		Request(
 			iamClient.Host,
 			apiConfig.Path,
-			http.MethodPost,
+			http.MethodGet,
 		).
 		Headers(headers).
 		Timeout(apiConfig.Timeout)
 
-	if resp, err := iamClient.client.Send(req); err != nil {
+	if resp, err := iamClient.Client.Send(req); err != nil {
 		return nil, err
 	} else {
 		return httpclient.Parse(resp, &model.UserInfo{})

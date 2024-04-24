@@ -4,20 +4,21 @@ import (
 	"net/http"
 
 	"github.com/abhishekghoshhh/gms/pkg/iam"
+	"github.com/abhishekghoshhh/gms/pkg/logger"
 	"github.com/labstack/echo"
 )
 
-type Handler struct {
+type GroupsHandler struct {
 	iamClient *iam.IamClient
 }
 
-func NewHandler(iamClient *iam.IamClient) *Handler {
-	return &Handler{
+func NewGetGroupsHandler(iamClient *iam.IamClient) *GroupsHandler {
+	return &GroupsHandler{
 		iamClient: iamClient,
 	}
 }
 
-func (h *Handler) GetGroups(c echo.Context) error {
+func (h *GroupsHandler) GetGroups(c echo.Context) error {
 	token := c.Request().Header.Get("Authorization")
 	groups := c.Request().URL.Query()["group"]
 
@@ -37,5 +38,8 @@ func (h *Handler) GetGroups(c echo.Context) error {
 
 	matchingGroups := iamProfile.GetMatchingGroups(groups)
 
+	logger.Info("matching groups " + matchingGroups)
+
+	c.Response().Header().Set("Content-Type", "text/plain")
 	return c.String(http.StatusOK, matchingGroups)
 }

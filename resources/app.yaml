@@ -1,8 +1,13 @@
 
-# capabilities config
-scheme: http
-proxyName: localhost
-proxyPort: 8080
+server:
+  port: ${SERVER_PORT:8080}
+  capabilities:
+    path: ${CAPABILITIES_PATH:/resources/capabilities.xml}
+    config:
+      scheme: ${TOMCAT_CONNECTOR_SCHEME:http}
+      proxyName: ${TOMCAT_CONNECTOR_PROXY_NAME:localhost}
+      proxyPort: ${TOMCAT_CONNECTOR_PROXY_PORT:8080}
+
 
 # iam api configs
 iam:
@@ -12,8 +17,8 @@ iam:
   clientCredentialToken:
     path: /token
     timeout: 5
-    clientId: ${CLIENT_CREDETIAL_ID:client_id}
-    clientSecret: ${CLIENT_CREDETIAL_SECRET:client_secret}
+    clientId: ${CLIENT_CREDETIAL_ID:88323e8a-75b9-403d-bd7d-f6e86aa17cd3}
+    clientSecret: ${CLIENT_CREDETIAL_SECRET:AOiMyWd8VM_cx5hUYp9hKVIbPgqFXH10lwHUh0VkMRSeX28IFuXjWbNOnuaLjpfGQqbLvG1nAuNOoWOJLYY0Hdo}
   fetchUserById:
     path: /scim/Users/{userId}
     timeout: 10
