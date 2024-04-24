@@ -17,8 +17,8 @@ iam:
   clientCredentialToken:
     path: /token
     timeout: 5
-    clientId: ${CLIENT_CREDETIAL_ID:88323e8a-75b9-403d-bd7d-f6e86aa17cd3}
-    clientSecret: ${CLIENT_CREDETIAL_SECRET:AOiMyWd8VM_cx5hUYp9hKVIbPgqFXH10lwHUh0VkMRSeX28IFuXjWbNOnuaLjpfGQqbLvG1nAuNOoWOJLYY0Hdo}
+    clientId: ${CLIENT_CREDETIAL_ID:client}
+    clientSecret: ${CLIENT_CREDETIAL_SECRET:client_secret}
   fetchUserById:
     path: /scim/Users/{userId}
     timeout: 10
