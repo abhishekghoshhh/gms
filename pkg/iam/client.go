@@ -92,7 +92,8 @@ func (iamClient *IamClient) getToken(requestBody map[string]string) (*model.Clie
 		).
 		Headers(headers).
 		Body(requestBody).
-		Timeout(apiConfig.Timeout)
+		Timeout(apiConfig.Timeout).
+		Log()
 
 	if resp, err := iamClient.Client.Send(req); err != nil {
 		return nil, err

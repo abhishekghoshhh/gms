@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/abhishekghoshhh/gms/pkg/logger"
+	"github.com/labstack/echo"
 	"go.uber.org/zap"
 )
 
@@ -38,9 +39,12 @@ func (CustomClient) Send(conf *RequestConf) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger.Info("calling " + url.String())
+	logger.Debug("calling " + url.String())
 
 	reqBody, err := conf.prerpareBody()
+
+	logger.Debug("request is " + string(reqBody))
+
 	if err != nil {
 		return nil, err
 	}
@@ -73,17 +77,31 @@ func send(client *http.Client, req *http.Request) ([]byte, error) {
 		logger.Error("Error on response " + err.Error())
 		return nil, err
 	}
-
 	defer resp.Body.Close()
+	return parseResponse(resp)
+}
 
+func parseResponse(resp *http.Response) ([]byte, error) {
 	body, err := io.ReadAll(resp.Body)
+
+	logger.Info("response is " + string(body))
 
 	if err != nil {
 		logger.Error("Error reading response body:" + err.Error())
 		return nil, err
 	}
-	return body, nil
+
+	statusCode := resp.StatusCode
+	if statusCode >= 200 && statusCode < 300 {
+		return body, nil
+	}
+
+	return nil, echo.NewHTTPError(
+		statusCode,
+		string(body),
+	)
 }
+
 func Parse[T any](data []byte, dataObject *T) (*T, error) {
 	if err := json.Unmarshal(data, dataObject); err != nil {
 		logger.Error("error is " + err.Error())
@@ -109,6 +127,7 @@ type RequestConf struct {
 	queryParams map[string]string
 	body        any
 	timeout     time.Duration
+	canLog      bool
 }
 
 func Request(host, path, method string) *RequestConf {
@@ -117,6 +136,10 @@ func Request(host, path, method string) *RequestConf {
 		path:   path,
 		method: method,
 	}
+}
+func (config *RequestConf) Log() *RequestConf {
+	config.canLog = true
+	return config
 }
 func (config *RequestConf) Headers(headers map[string]string) *RequestConf {
 	config.headers = headers

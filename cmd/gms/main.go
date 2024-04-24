@@ -10,9 +10,11 @@ import (
 	"github.com/abhishekghoshhh/gms/pkg/config"
 	"github.com/abhishekghoshhh/gms/pkg/http"
 	"github.com/abhishekghoshhh/gms/pkg/iam"
+	"github.com/abhishekghoshhh/gms/pkg/logger"
 )
 
 func main() {
+	logger.Debug("I am here")
 	c := config.New()
 	e := echo.New()
 
