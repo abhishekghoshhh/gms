@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/abhishekghoshhh/gms/pkg/iam"
-	"github.com/abhishekghoshhh/gms/pkg/logger"
+	"github.com/labstack/echo"
 )
 
 type Handler struct {
@@ -17,41 +17,25 @@ func NewHandler(iamClient *iam.IamClient) *Handler {
 	}
 }
 
-func (h *Handler) GetGroups(responseWriter http.ResponseWriter, request *http.Request) {
-	token := request.Header.Get("Authorization")
-	groups := request.URL.Query()["group"]
-
-	getGroups, err := h.getGroups(token, groups)
-	if err != nil {
-		responseWriter.WriteHeader(400)
-	}
-	_, err = responseWriter.Write([]byte(getGroups))
-	if err != nil {
-		logger.Error("Error in response writer")
-	}
-}
-
-func (h *Handler) getGroups(token string, groups []string) (string, error) {
+func (h *Handler) GetGroups(c echo.Context) error {
+	token := c.Request().Header.Get("Authorization")
+	groups := c.Request().URL.Query()["group"]
 
 	info, err := h.iamClient.FetchUserInfo(token)
 	if err != nil {
-		return "", err
+		return err
 	}
 	clientCredentialToken, err := h.iamClient.FetchClientCredentialToken()
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	resp, err := h.iamClient.FetchUserById(clientCredentialToken.AccessToken, info.Userid)
+	iamProfile, err := h.iamClient.FetchUserById(clientCredentialToken.AccessToken, info.Userid)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	matchingGroups := resp.GetMatchingGroups(groups)
+	matchingGroups := iamProfile.GetMatchingGroups(groups)
 
-	if err != nil {
-		return "", err
-	}
-
-	return matchingGroups, nil
+	return c.String(http.StatusOK, matchingGroups)
 }
