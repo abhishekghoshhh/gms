@@ -1,0 +1,126 @@
+swagger: '2.0'
+info:
+  version: '0.1'
+  title: Group Membership Service(gms)
+  description: 'Storage Inventory Group Membership API.<br/><br/>Clients needs to authenticate to this service by using Bearer Authorization header.'
+schemes:
+  - https
+  - http
+basePath: '/'
+paths:
+  /gms/search:
+    parameters:
+      - name: group
+        in: query
+        schema:
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
+        type: array
+        collectionFormat: multi
+        description: The group name
+        required: false
+      - name: Authorization
+        in: header
+        description: An authorization header(Authentication Token from IAM in Bearer format)
+        required: true
+        type: string
+    get:
+      description: find the groups in which user is present
+      tags:
+        - Group Related Information
+      summary: Get group membership information.
+      produces:
+        - raw text
+      responses:
+        '200':
+          description: Successful response.
+        '401':
+          description: If the client does not provide credentials and anonymous access is disallowed.
+        '500':
+          description: Internal error
+        '503':
+          description: Service busy
+  /gms/capabilities:
+    get:
+      summary: Retunr the capabiltity of GMS Microservice
+      tags:
+        - Support Interfaces
+      description: >
+        Provides the service metadata in the form of a list of Capability
+        descriptions.  Each of these descriptions is an
+        XML element that:
+        <ul>
+        <li>states that the service provides a particular, IVOA-standard
+        function;</li>
+        <li>lists the interfaces for invoking that function;</li>
+        <li>records any details of the implementation of the function that are
+        not defined as default or constant in the standard for that
+        function.</li>
+        </ul>
+      produces:
+        - application/xml
+      responses:
+        '200':
+          description: A  Capabilities document in XML.
+          schema:
+            $ref: '#/definitions/capabilities'
+        '500':
+          description: Internal server error
+        '503':
+          description: Service too busy
+        default:
+          description: Unexpected error
+definitions:
+  availability:
+    type: object
+    xml:
+      name: availability
+      namespace: 'http://www.ivoa.net/xml/VOSIAvailability/v1.0'
+      prefix: vosi
+    properties:
+      available:
+        type: boolean
+        xml:
+          attribute: true
+          prefix: vosi
+      note:
+        type: string
+        xml:
+          attribute: true
+          prefix: vosi
+  capabilities:
+    type: array
+    items:
+      $ref: '#/definitions/capability'
+    xml:
+      namespace: 'http://www.ivoa.net/xml/VOSICapabilities/v1.0'
+      prefix: vosi
+      wrapped: true
+  capability:
+    type: object
+    properties:
+      standardID:
+        type: string
+        format: uri
+        xml:
+          attribute: true
+      interface:
+        type: object
+        properties:
+          accessURL:
+            type: string
+            properties:
+              use:
+                type: string
+                xml:
+                  attribute: true
+          securityMethod:
+            type: string
+            properties:
+              standardID:
+                type: string
+                format: uri
+                xml:
+                  attribute: true

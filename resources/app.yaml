@@ -1,6 +1,10 @@
 
 server:
   port: ${SERVER_PORT:8080}
+  web:
+    index: ${INDEX_PAGE_PATH:resources/web/index.html}
+    static: ${STATIC_ASSETS_PATH:resources/web/swagger-ui}
+  swagger: ${SWAGGER_FILE_PATH:resources/swagger.yaml}
   capabilities:
     path: ${CAPABILITIES_PATH:/resources/capabilities.xml}
     config:
@@ -11,14 +15,16 @@ server:
 
 # iam api configs
 iam:
-  userinfo:
-    path: /userinfo
-    timeout: 5
-  clientCredentialToken:
-    path: /token
-    timeout: 5
-    clientId: ${CLIENT_CREDETIAL_ID:client}
-    clientSecret: ${CLIENT_CREDETIAL_SECRET:client_secret}
-  fetchUserById:
-    path: /scim/Users/{userId}
-    timeout: 10
+  host: ${IAM_HOST:https//dev.iam.io}
+  apis:
+    userinfo:
+      path: /userinfo
+      timeout: 5
+    clientCredentialToken:
+      path: /token
+      timeout: 5
+      clientId: ${CLIENT_CREDETIAL_ID:clientId}
+      clientSecret: ${CLIENT_CREDETIAL_SECRET:clientSercret}
+    fetchUserById:
+      path: /scim/Users/{userId}
+      timeout: 5

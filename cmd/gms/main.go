@@ -6,42 +6,54 @@ import (
 
 	"github.com/abhishekghoshhh/gms/internal/api"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
+	"github.com/labstack/gommon/log"
 
 	"github.com/abhishekghoshhh/gms/pkg/config"
 	"github.com/abhishekghoshhh/gms/pkg/http"
 	"github.com/abhishekghoshhh/gms/pkg/iam"
-	"github.com/abhishekghoshhh/gms/pkg/logger"
 )
 
 func main() {
-	logger.Debug("I am here")
-	c := config.New()
 	e := echo.New()
 
-	serverPort := c.GetString("server.port")
+	// adding middlewares
+	e.Use(middleware.Logger())
+	e.Use(middleware.CORS())
 
+	// creating an instance of the config
+	cfg := config.New()
+
+	// building dependencies for GMS api
 	iamConfig := make(map[string]*iam.IamConfig)
-	c.Decode("iam", &iamConfig)
-
+	cfg.Decode("iam.apis", &iamConfig)
 	iamClient := iam.New(
-		os.Getenv("IAM_HOST"),
+		cfg.GetString("iam.host"),
 		iamConfig,
 		http.NewClient(),
 	)
+	groupsHandler := api.NewGetGroupsHandler(iamClient)
 
+	// building dependencies for capabilities api
 	workingDir, _ := os.Getwd()
 	capabilitiesPath := filepath.Join(
 		workingDir,
-		c.GetString("server.capabilities.path"),
+		cfg.GetString("server.capabilities.path"),
 	)
 	capabilitiesConfig := make(map[string]string)
-	c.Decode("server.capabilities.config", &capabilitiesConfig)
-
-	groupsHandler := api.NewGetGroupsHandler(iamClient)
+	cfg.Decode("server.capabilities.config", &capabilitiesConfig)
 	capabilitiesHandler := api.CapabilitiesHandler(capabilitiesConfig, capabilitiesPath)
 
+	// hosting dynamic apis
 	e.GET("/gms/search", groupsHandler.GetGroups)
 	e.GET("/gms/capabilities", capabilitiesHandler.GetTemplate)
 
-	e.Logger.Fatal(e.Start(":" + serverPort))
+	// hosting static files
+	e.File("/", cfg.GetString("server.web.index"))
+	e.File("/swagger.yaml", cfg.GetString("server.swagger"))
+	e.Static("/swagger-ui/*", cfg.GetString("server.web.static"))
+
+	// spinning up the server
+	e.Logger.SetLevel(log.INFO)
+	e.Logger.Fatal(e.Start(":" + cfg.GetString("server.port")))
 }
