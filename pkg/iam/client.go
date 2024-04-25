@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	httpclient "github.com/abhishekghoshhh/gms/pkg/http"
 	"github.com/abhishekghoshhh/gms/pkg/model"
@@ -11,7 +12,7 @@ import (
 
 const (
 	MediaTypeAll          = "*/*"
-	ApplicationUrlEncoded = "x-www-form-urlencoded"
+	ApplicationUrlEncoded = "application/x-www-form-urlencoded"
 )
 
 type IamConfig struct {
@@ -42,10 +43,10 @@ func (iamClient *IamClient) FetchUserById(token, userId string) (*model.IamProfi
 	}
 
 	headers := map[string]string{
-		"Authorization": token,
+		"Authorization": "Bearer " + token,
 		"Accept":        MediaTypeAll,
 	}
-	queryParams := map[string]string{
+	pathVariables := map[string]string{
 		"userId": userId,
 	}
 
@@ -56,7 +57,7 @@ func (iamClient *IamClient) FetchUserById(token, userId string) (*model.IamProfi
 			http.MethodGet,
 		).
 		Headers(headers).
-		QueryParams(queryParams).
+		PathVariables(pathVariables).
 		Timeout(apiConfig.Timeout)
 
 	if resp, err := iamClient.Client.Send(req); err != nil {
@@ -69,14 +70,15 @@ func (iamClient *IamClient) FetchUserById(token, userId string) (*model.IamProfi
 func (iamClient *IamClient) FetchClientCredentialToken() (*model.Token, error) {
 	apiConfig := iamClient.Config["clientcredentialtoken"]
 
-	request := map[string]string{
-		"grant_type":    "client_credentials",
-		"client_id":     apiConfig.ClientId,
-		"client_secret": apiConfig.ClientSecret,
-	}
-	return iamClient.getToken(request)
+	formData := url.Values{}
+	formData.Set("grant_type", "client_credentials")
+	formData.Set("client_id", apiConfig.ClientId)
+	formData.Set("client_secret", apiConfig.ClientSecret)
+
+	return iamClient.getToken(formData.Encode())
 }
-func (iamClient *IamClient) getToken(requestBody map[string]string) (*model.Token, error) {
+
+func (iamClient *IamClient) getToken(requestBody any) (*model.Token, error) {
 	apiConfig := iamClient.Config["clientcredentialtoken"]
 
 	headers := map[string]string{
@@ -93,6 +95,7 @@ func (iamClient *IamClient) getToken(requestBody map[string]string) (*model.Toke
 		Headers(headers).
 		Body(requestBody).
 		Timeout(apiConfig.Timeout).
+		UrlEncodedData().
 		Log()
 
 	if resp, err := iamClient.Client.Send(req); err != nil {
@@ -101,6 +104,7 @@ func (iamClient *IamClient) getToken(requestBody map[string]string) (*model.Toke
 		return httpclient.Parse(resp, &model.Token{})
 	}
 }
+
 func (iamClient *IamClient) FetchUserInfo(token string) (*model.UserInfo, error) {
 	fmt.Println("iamClient.Config", iamClient.Config)
 	apiConfig := iamClient.Config["userinfo"]
