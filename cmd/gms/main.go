@@ -41,7 +41,7 @@ func main() {
 	capabilitiesHandler := api.CapabilitiesHandler(capabilitiesConfig, capabilitiesPath)
 
 	e.GET("/gms/search", groupsHandler.GetGroups)
-	e.GET("/capabilities", capabilitiesHandler.GetTemplate)
+	e.GET("/gms/capabilities", capabilitiesHandler.GetTemplate)
 
 	e.Logger.Fatal(e.Start(":" + serverPort))
 }
