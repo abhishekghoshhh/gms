@@ -41,7 +41,7 @@ func (CustomClient) Send(conf *RequestConf) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger.Info("calling " + url.String())
+	logger.Debug("calling " + url.String())
 
 	reqBody, err := conf.prerpareBody()
 
@@ -85,8 +85,6 @@ func send(client *http.Client, req *http.Request) ([]byte, error) {
 
 func parseResponse(resp *http.Response) ([]byte, error) {
 	body, err := io.ReadAll(resp.Body)
-
-	logger.Info("response is " + string(body))
 
 	if err != nil {
 		logger.Error("Error reading response body:" + err.Error())

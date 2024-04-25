@@ -2,7 +2,6 @@ package iam
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 
@@ -24,11 +23,11 @@ type IamConfig struct {
 
 type IamClient struct {
 	Host   string
-	Config map[string]*IamConfig
+	Config map[string]IamConfig
 	Client *httpclient.CustomClient
 }
 
-func New(host string, iamConfig map[string]*IamConfig, client *httpclient.CustomClient) *IamClient {
+func New(host string, iamConfig map[string]IamConfig, client *httpclient.CustomClient) *IamClient {
 	return &IamClient{
 		Host:   host,
 		Config: iamConfig,
@@ -106,9 +105,7 @@ func (iamClient *IamClient) getToken(requestBody any) (*model.Token, error) {
 }
 
 func (iamClient *IamClient) FetchUserInfo(token string) (*model.UserInfo, error) {
-	fmt.Println("iamClient.Config", iamClient.Config)
 	apiConfig := iamClient.Config["userinfo"]
-	fmt.Println("apiConfig", apiConfig)
 
 	headers := map[string]string{
 		"Accept":        MediaTypeAll,

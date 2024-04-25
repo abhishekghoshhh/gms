@@ -6,7 +6,6 @@ import (
 
 	"github.com/abhishekghoshhh/gms/internal/api"
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 	"github.com/labstack/gommon/log"
 
 	"github.com/abhishekghoshhh/gms/pkg/config"
@@ -17,15 +16,11 @@ import (
 func main() {
 	e := echo.New()
 
-	// adding middlewares
-	e.Use(middleware.Logger())
-	e.Use(middleware.CORS())
-
 	// creating an instance of the config
 	cfg := config.New()
 
 	// building dependencies for GMS api
-	iamConfig := make(map[string]*iam.IamConfig)
+	iamConfig := make(map[string]iam.IamConfig)
 	cfg.Decode("iam.apis", &iamConfig)
 	iamClient := iam.New(
 		cfg.GetString("iam.host"),
