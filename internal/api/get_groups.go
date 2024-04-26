@@ -21,6 +21,9 @@ func NewGetGroupsHandler(iamClient *iam.IamClient) *GroupsHandler {
 
 func (h *GroupsHandler) GetGroups(c echo.Context) error {
 	token := c.Request().Header.Get("Authorization")
+	if token == "" {
+		return echo.ErrBadRequest
+	}
 	groups := c.Request().URL.Query()["group"]
 
 	info, err := h.iamClient.FetchUserInfo(token)
