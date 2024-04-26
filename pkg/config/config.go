@@ -92,7 +92,7 @@ func get(config *viper.Viper, key string) any {
 		if valFromEnv != "" {
 			return valFromEnv
 		}
-		return parts[1]
+		return strings.Join(parts[1:], ":")
 	}
 	return val
 }
