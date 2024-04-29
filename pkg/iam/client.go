@@ -29,10 +29,10 @@ type Client interface {
 type IamClient struct {
 	Host   string
 	Config map[string]IamConfig
-	Client *httpclient.CustomClient
+	Client httpclient.HttpClient
 }
 
-func New(host string, iamConfig map[string]IamConfig, client *httpclient.CustomClient) *IamClient {
+func New(host string, iamConfig map[string]IamConfig, client httpclient.HttpClient) *IamClient {
 	return &IamClient{
 		Host:   host,
 		Config: iamConfig,

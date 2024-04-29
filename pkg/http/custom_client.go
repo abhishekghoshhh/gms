@@ -30,13 +30,16 @@ type HttpClient interface {
 }
 
 type CustomClient struct {
+	client *http.Client
 }
 
 func NewClient() *CustomClient {
-	return &CustomClient{}
+	return &CustomClient{
+		client: http.DefaultClient,
+	}
 }
 
-func (CustomClient) Send(conf *RequestConf) ([]byte, error) {
+func (c *CustomClient) Send(conf *RequestConf) ([]byte, error) {
 	url, err := conf.prepareUrl()
 	if err != nil {
 		return nil, err
@@ -66,7 +69,7 @@ func (CustomClient) Send(conf *RequestConf) ([]byte, error) {
 		req.Header.Set(key, value)
 	}
 
-	return send(client, req)
+	return send(c.client, req)
 }
 
 func send(client *http.Client, req *http.Request) ([]byte, error) {
