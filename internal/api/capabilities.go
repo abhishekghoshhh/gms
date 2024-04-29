@@ -10,8 +10,6 @@ import (
 )
 
 const (
-	RESOURCES                            = "resources"
-	CAPABILITIES_FILE                    = "capabilities.xml"
 	CAPABILITIES_CONFIG_REGEX_EXPRESSION = `\$\{(\w+)\}`
 )
 

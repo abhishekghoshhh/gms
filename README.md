@@ -16,9 +16,9 @@ If that fails, make sure your GOPATH/bin is in your PATH. You can add it with:
 export PATH=$PATH:$(go env GOPATH)/bin
 
 create mocks using the following command
-mockgen -source=pkg/lib/build_capabilities.go -destination=mocks/mock_build_capabilities.go -package=mocks
-mockgen -source=pkg/lib/get_groups.go -destination=mocks/mock_get_groups.go -package=mocks
-mockgen -source=pkg/model/gms_model.go -destination=mocks/mock_gms_model.go -package=mocks
+mockgen -source=pkg/iam/client.go -destination=mocks/mock_iam_client.go -package=mocks
+mockgen -source=pkg/http/custom_client.go -destination=mocks/mock_http_client.go -package=mocks
+
 ```
 
 
