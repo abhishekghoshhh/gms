@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gms
+data:
+  IAM_HOST: https://ska-iam.stfc.ac.uk
+  CLIENT_CREDENTIAL_ID: client_id
+  CLIENT_CREDENTIAL_SECRET: client_secret
+  TOMCAT_CONNECTOR_SCHEME: http
+  TOMCAT_CONNECTOR_PROXY_NAME: gms.default.svc.cluster.local
+  TOMCAT_CONNECTOR_PROXY_PORT: "8080"
+
+  GMS_APPLICATION_LOGGING_LEVEL: INFO
+  PASSWORD_GRANT_FLOW_ACTIVE: "false"
+  IAM_SCIM_CLIENT_ID: client_id 
+  IAM_SCIM_CLIENT_SECRET: client_secret 
+  JVM_OPTS: -Dca.nrc.cadc.auth.IdentityManager=org.opencadc.auth.StandardIdentityManager
+  PATH: /opt/java/openjdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  JAVA_HOME: /opt/java/openjdk
+  LANG: en_US.UTF-8
+  LANGUAGE: en_US:en
+  LC_ALL: en_US.UTF-8
+  JAVA_VERSION: jdk-19.0.2+7
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: gms
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    app: gms
+
+  
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gms
+  template:
+    metadata:
+      labels:
+        app: gms
+    spec:
+      containers:
+      - name: gms
+        image: abhishek1009/gms-go
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: gms
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "500m"
+          limits:
+            memory: "256Mi"
+            cpu: "1"
