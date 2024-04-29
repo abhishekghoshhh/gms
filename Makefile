@@ -5,7 +5,7 @@
 IMAGE_NAME = abhishek1009/gms-go
 DEFAULT_TAG = latest
 
-RUN_ARGS = IAM_HOST=https://ska-iam.stfc.ac.uk PASSWORD_GRANT_FLOW_USERNAME=fake-name PASSWORD_GRANT_FLOW_PASSWORD=fake-password PASSWORD_GRANT_FLOW_CLIENT_ID=fake-client-id PASSWORD_GRANT_FLOW_CLIENT_SECRET=fake-client-secret
+RUN_ARGS = IAM_HOST=https://ska-iam.stfc.ac.uk
 
 say_hello:
 	cat ./Makefile

@@ -5,7 +5,6 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/abhishekghoshhh/gms/pkg/logger"
 	"github.com/labstack/echo"
 )
 
@@ -32,8 +31,7 @@ func (handler *CapabilitiesApi) GetTemplate(c echo.Context) error {
 func loadCapabilities(config map[string]string, filePath string) string {
 	body, err := os.ReadFile(filePath)
 	if err != nil {
-		logger.Fatal("unable to read file: " + err.Error())
-		panic(err)
+		panic("unable to read file: " + err.Error())
 	}
 	templateString := string(body)
 	re := regexp.MustCompile(CAPABILITIES_CONFIG_REGEX_EXPRESSION)
