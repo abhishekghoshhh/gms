@@ -20,6 +20,11 @@ type IamConfig struct {
 	ClientId     string
 	ClientSecret string
 }
+type Client interface {
+	FetchUserById(token, userId string) (*model.IamProfileResponse, error)
+	FetchClientCredentialToken() (*model.Token, error)
+	FetchUserInfo(token string) (*model.UserInfo, error)
+}
 
 type IamClient struct {
 	Host   string

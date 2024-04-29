@@ -10,10 +10,10 @@ import (
 )
 
 type GroupsHandler struct {
-	iamClient *iam.IamClient
+	iamClient iam.Client
 }
 
-func NewGetGroupsHandler(iamClient *iam.IamClient) *GroupsHandler {
+func NewGetGroupsHandler(iamClient iam.Client) *GroupsHandler {
 	return &GroupsHandler{
 		iamClient: iamClient,
 	}
