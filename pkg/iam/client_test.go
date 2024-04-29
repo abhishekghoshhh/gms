@@ -73,7 +73,6 @@ func TestIamClient(t *testing.T) {
 
 		response, err := iamClient.FetchUserById("token", "userid")
 
-
 		assert.NoError(t, err)
 		assert.Equal(t, &profileResponse, response)
 	})
@@ -105,7 +104,6 @@ func TestIamClient(t *testing.T) {
 		mockHttpClient.EXPECT().Send(gomock.Any()).Return(jsonData, nil)
 
 		credentialToken, err := iamClient.FetchClientCredentialToken()
-
 
 		assert.NoError(t, err)
 		assert.Equal(t, &token, credentialToken)
