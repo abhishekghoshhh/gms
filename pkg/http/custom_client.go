@@ -17,10 +17,6 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	client = http.DefaultClient
-)
-
 const (
 	MAX_TIMEOUT = 300 * time.Second
 )
