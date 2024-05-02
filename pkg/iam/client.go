@@ -1,10 +1,10 @@
 package iam
 
 import (
-	"errors"
 	"net/http"
 	"net/url"
 
+	"github.com/abhishekghoshhh/gms/pkg/config"
 	httpclient "github.com/abhishekghoshhh/gms/pkg/http"
 	"github.com/abhishekghoshhh/gms/pkg/model"
 )
@@ -14,12 +14,6 @@ const (
 	ApplicationUrlEncoded = "application/x-www-form-urlencoded"
 )
 
-type IamConfig struct {
-	Path         string
-	Timeout      int
-	ClientId     string
-	ClientSecret string
-}
 type Client interface {
 	FetchUserById(token, userId string) (*model.IamProfileResponse, error)
 	FetchClientCredentialToken() (*model.Token, error)
@@ -27,24 +21,19 @@ type Client interface {
 }
 
 type IamClient struct {
-	Host   string
-	Config map[string]IamConfig
-	Client httpclient.HttpClient
+	iamConfig config.IamConfig
+	Client    httpclient.HttpClient
 }
 
-func New(host string, iamConfig map[string]IamConfig, client httpclient.HttpClient) *IamClient {
+func New(iamConfig config.IamConfig, client httpclient.HttpClient) *IamClient {
 	return &IamClient{
-		Host:   host,
-		Config: iamConfig,
-		Client: client,
+		iamConfig: iamConfig,
+		Client:    client,
 	}
 }
 
-func (iamClient *IamClient) FetchUserById(token, userId string) (*model.IamProfileResponse, error) {
-	apiConfig, ok := iamClient.Config["fetchuserbyid"]
-	if !ok {
-		return nil, errors.New("invalid Api Config")
-	}
+func (iamClient IamClient) FetchUserById(token, userId string) (*model.IamProfileResponse, error) {
+	apiConfig := iamClient.iamConfig.Apis.FetchUserById
 
 	headers := map[string]string{
 		"Authorization": "Bearer " + token,
@@ -56,7 +45,7 @@ func (iamClient *IamClient) FetchUserById(token, userId string) (*model.IamProfi
 
 	req := httpclient.
 		Request(
-			iamClient.Host,
+			iamClient.iamConfig.Host,
 			apiConfig.Path,
 			http.MethodGet,
 		).
@@ -71,8 +60,8 @@ func (iamClient *IamClient) FetchUserById(token, userId string) (*model.IamProfi
 	}
 }
 
-func (iamClient *IamClient) FetchClientCredentialToken() (*model.Token, error) {
-	apiConfig := iamClient.Config["clientcredentialtoken"]
+func (iamClient IamClient) FetchClientCredentialToken() (*model.Token, error) {
+	apiConfig := iamClient.iamConfig.Apis.ClientCredentialToken
 
 	formData := url.Values{}
 	formData.Set("grant_type", "client_credentials")
@@ -82,8 +71,8 @@ func (iamClient *IamClient) FetchClientCredentialToken() (*model.Token, error) {
 	return iamClient.getToken(formData.Encode())
 }
 
-func (iamClient *IamClient) getToken(requestBody any) (*model.Token, error) {
-	apiConfig := iamClient.Config["clientcredentialtoken"]
+func (iamClient IamClient) getToken(requestBody any) (*model.Token, error) {
+	apiConfig := iamClient.iamConfig.Apis.ClientCredentialToken
 
 	headers := map[string]string{
 		"Accept":       MediaTypeAll,
@@ -92,7 +81,7 @@ func (iamClient *IamClient) getToken(requestBody any) (*model.Token, error) {
 
 	req := httpclient.
 		Request(
-			iamClient.Host,
+			iamClient.iamConfig.Host,
 			apiConfig.Path,
 			http.MethodPost,
 		).
@@ -110,7 +99,7 @@ func (iamClient *IamClient) getToken(requestBody any) (*model.Token, error) {
 }
 
 func (iamClient *IamClient) FetchUserInfo(token string) (*model.UserInfo, error) {
-	apiConfig := iamClient.Config["userinfo"]
+	apiConfig := iamClient.iamConfig.Apis.UserInfo
 
 	headers := map[string]string{
 		"Accept":        MediaTypeAll,
@@ -120,7 +109,7 @@ func (iamClient *IamClient) FetchUserInfo(token string) (*model.UserInfo, error)
 
 	req := httpclient.
 		Request(
-			iamClient.Host,
+			iamClient.iamConfig.Host,
 			apiConfig.Path,
 			http.MethodGet,
 		).

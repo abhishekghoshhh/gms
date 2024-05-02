@@ -2,11 +2,13 @@ package iam
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/abhishekghoshhh/gms/mocks"
+	"github.com/abhishekghoshhh/gms/pkg/config"
 	"github.com/abhishekghoshhh/gms/pkg/model"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
-	"testing"
 )
 
 func TestIamClient(t *testing.T) {
@@ -15,9 +17,9 @@ func TestIamClient(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockHttpClient := mocks.NewMockHttpClient(ctrl)
-		iamConfig := make(map[string]IamConfig)
+		var iamConfig config.IamConfig
 
-		iamClient := New("host",iamConfig, mockHttpClient)
+		iamClient := New(iamConfig, mockHttpClient)
 
 		data := model.UserInfo{
 			Userid:           "john",
@@ -29,7 +31,7 @@ func TestIamClient(t *testing.T) {
 			OrganizationName: "abc",
 		}
 
-		jsonData,_ := json.Marshal(data)
+		jsonData, _ := json.Marshal(data)
 
 		mockHttpClient.EXPECT().Send(gomock.Any()).Return(jsonData, nil)
 
@@ -39,27 +41,27 @@ func TestIamClient(t *testing.T) {
 		assert.Equal(t, &data, info)
 	})
 
-
 	t.Run("should fetch user id with given token and userid", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		mockHttpClient := mocks.NewMockHttpClient(ctrl)
-		iamConfig := map[string]IamConfig {
-			"fetchuserbyid" : {
-				Path: "/",
-				Timeout: 0,
-				ClientId: "clientId",
-				ClientSecret: "secret",
+		iamConfig := config.IamConfig{
+			Host: "host",
+			Apis: config.IamApiConfig{
+				FetchUserById: config.ApiConfig{
+					Path:    "/",
+					Timeout: 0,
+				},
 			},
 		}
 
-		iamClient := New("host",iamConfig, mockHttpClient)
+		iamClient := New(iamConfig, mockHttpClient)
 
-		profileResponse:= model.IamProfileResponse{
-			Id:               "john",
-			DisplayName:      "john",
-			Groups:           []model.Group{ {Display: "group1"}},
+		profileResponse := model.IamProfileResponse{
+			Id:          "john",
+			DisplayName: "john",
+			Groups:      []model.Group{{Display: "group1"}},
 			IndigoUserSchema: model.IndigoUserSchema{
 				Certificates: []model.UserCertificate{
 					{Primary: true,
@@ -67,7 +69,7 @@ func TestIamClient(t *testing.T) {
 				},
 			},
 		}
-		jsonData,_ := json.Marshal(profileResponse)
+		jsonData, _ := json.Marshal(profileResponse)
 
 		mockHttpClient.EXPECT().Send(gomock.Any()).Return(jsonData, nil)
 
@@ -82,16 +84,20 @@ func TestIamClient(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockHttpClient := mocks.NewMockHttpClient(ctrl)
-		iamConfig := map[string]IamConfig {
-			"clientCredentialToken" : {
-				Path: "/token",
-				Timeout: 0,
-				ClientId: "clientId",
-				ClientSecret: "secret",
+
+		iamConfig := config.IamConfig{
+			Host: "host",
+			Apis: config.IamApiConfig{
+				ClientCredentialToken: config.ApiConfig{
+					Path:         "/token",
+					Timeout:      0,
+					ClientId:     "clientId",
+					ClientSecret: "secret",
+				},
 			},
 		}
 
-		iamClient := New("host",iamConfig, mockHttpClient)
+		iamClient := New(iamConfig, mockHttpClient)
 
 		token := model.Token{
 			AccessToken: "acessToken",
@@ -99,7 +105,7 @@ func TestIamClient(t *testing.T) {
 			Scope:       "scope",
 			ExpiresIn:   0,
 		}
-		jsonData,_ := json.Marshal(token)
+		jsonData, _ := json.Marshal(token)
 
 		mockHttpClient.EXPECT().Send(gomock.Any()).Return(jsonData, nil)
 

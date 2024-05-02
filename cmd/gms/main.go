@@ -20,10 +20,9 @@ func main() {
 	cfg := config.New()
 
 	// building dependencies for GMS api
-	iamConfig := make(map[string]iam.IamConfig)
-	cfg.Decode("iam.apis", &iamConfig)
+	var iamConfig config.IamConfig
+	cfg.Decode("iam", &iamConfig)
 	iamClient := iam.New(
-		cfg.GetString("iam.host"),
 		iamConfig,
 		http.NewClient(),
 	)
