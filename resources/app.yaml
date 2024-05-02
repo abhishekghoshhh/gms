@@ -1,0 +1,30 @@
+
+server:
+  port: ${SERVER_PORT:8080}
+  web:
+    index: ${INDEX_PAGE_PATH:resources/web/index.html}
+    static: ${STATIC_ASSETS_PATH:resources/web/swagger-ui}
+  swagger: ${SWAGGER_FILE_PATH:resources/swagger.yaml}
+  capabilities:
+    path: ${CAPABILITIES_PATH:/resources/capabilities.xml}
+    config:
+      scheme: ${TOMCAT_CONNECTOR_SCHEME:http}
+      proxyName: ${TOMCAT_CONNECTOR_PROXY_NAME:localhost}
+      proxyPort: ${TOMCAT_CONNECTOR_PROXY_PORT:8080}
+
+
+# iam api configs
+iam:
+  host: ${IAM_HOST:https://ska-iam.stfc.ac.uk}
+  apis:
+    userinfo:
+      path: /userinfo
+      timeout: 5
+    clientCredentialToken:
+      path: /token
+      timeout: 5
+      clientId: ${CLIENT_CREDENTIAL_ID:client_Id}
+      clientSecret: ${CLIENT_CREDENTIAL_SECRET:client_secret}
+    fetchUserById:
+      path: /scim/Users/{userId}
+      timeout: 5
