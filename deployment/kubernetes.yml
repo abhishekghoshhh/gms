@@ -3,17 +3,17 @@ kind: ConfigMap
 metadata:
   name: gms
 data:
-  IAM_HOST: https://ska-iam.stfc.ac.uk
-  CLIENT_CREDENTIAL_ID: client_id
-  CLIENT_CREDENTIAL_SECRET: client_secret
+  IAM_HOST: http://iam-service.default.svc.cluster.local:8080
+  CLIENT_CREDENTIAL_ID: client
+  CLIENT_CREDENTIAL_SECRET: secret
   TOMCAT_CONNECTOR_SCHEME: http
   TOMCAT_CONNECTOR_PROXY_NAME: gms.default.svc.cluster.local
   TOMCAT_CONNECTOR_PROXY_PORT: "8080"
 
   GMS_APPLICATION_LOGGING_LEVEL: INFO
   PASSWORD_GRANT_FLOW_ACTIVE: "false"
-  IAM_SCIM_CLIENT_ID: client_secret
-  IAM_SCIM_CLIENT_SECRET: client_secret
+  IAM_SCIM_CLIENT_ID: client
+  IAM_SCIM_CLIENT_SECRET: secret
   JVM_OPTS: -Dca.nrc.cadc.auth.IdentityManager=org.opencadc.auth.StandardIdentityManager
   PATH: /opt/java/openjdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
   JAVA_HOME: /opt/java/openjdk
@@ -30,7 +30,7 @@ metadata:
   name: cadc-registry
 data:
   cadc-registry.properties: |
-    ivo://ivoa.net/sso#OpenID = https://ska-iam.stfc.ac.uk
+    ivo://ivoa.net/sso#OpenID = http://iam-service.default.svc.cluster.local:8080
 
 ---
 
@@ -67,8 +67,8 @@ spec:
         image: abhishek1009/gms-java
         imagePullPolicy: Never
         volumeMounts:
-            - name: cadc-registry
-              mountPath: /root/config
+          - name: cadc-registry
+            mountPath: /root/config
         ports:
         - containerPort: 8080
         envFrom:
@@ -82,6 +82,6 @@ spec:
             memory: "256Mi"
             cpu: "1"
       volumes:
-          - name: cadc-registry
-            configMap:
-              name: cadc-registry
+        - name: cadc-registry
+          configMap:
+            name: cadc-registry
