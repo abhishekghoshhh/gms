@@ -2,7 +2,7 @@
 
 .PHONY: build test image
 
-IMAGE_NAME = abhishek1009/gms-go
+IMAGE_NAME = gms-go
 DEFAULT_TAG = latest
 
 RUN_ARGS = IAM_HOST=https://ska-iam.stfc.ac.uk
