@@ -9,13 +9,13 @@ server:
     path: ${CAPABILITIES_PATH:/resources/capabilities.xml}
     config:
       scheme: ${TOMCAT_CONNECTOR_SCHEME:http}
-      proxyName: ${TOMCAT_CONNECTOR_PROXY_NAME:localhost}
-      proxyPort: ${TOMCAT_CONNECTOR_PROXY_PORT:8080}
+      name: ${TOMCAT_CONNECTOR_PROXY_NAME:localhost}
+      port: ${TOMCAT_CONNECTOR_PROXY_PORT:8080}
 
 
 # iam api configs
 iam:
-  host: ${IAM_HOST:https://ska-iam.stfc.ac.uk}
+  host: ${IAM_HOST:http://localhost:8080}
   apis:
     userinfo:
       path: /userinfo
@@ -23,8 +23,8 @@ iam:
     clientCredentialToken:
       path: /token
       timeout: 5
-      clientId: ${CLIENT_CREDENTIAL_ID:client_Id}
-      clientSecret: ${CLIENT_CREDENTIAL_SECRET:client_secret}
+      clientId: ${CLIENT_CREDENTIAL_ID:client}
+      clientSecret: ${CLIENT_CREDENTIAL_SECRET:secret}
     fetchUserById:
       path: /scim/Users/{userId}
       timeout: 5

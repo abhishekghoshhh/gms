@@ -5,12 +5,12 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<capability standardID="ivo://ivoa.net/std/VOSI#capabilities">
 		<interface xsi:type="vs:ParamHTTP" role="std">
-			<accessURL use="full">${scheme}://${proxyName}:${proxyPort}/gms/capabilities</accessURL>
+			<accessURL use="full">${scheme}://${name}:${port}/gms/capabilities</accessURL>
 		</interface>
 	</capability>
 	<capability standardID="ivo://ivoa.net/std/GMS#search-1.0">
 		<interface xsi:type="vs:ParamHTTP" role="std" version="1.0">
-			<accessURL use="base">${scheme}://${proxyName}:${proxyPort}/gms/search</accessURL>
+			<accessURL use="base">${scheme}://${name}:${port}/gms/search</accessURL>
 			<securityMethod standardID="ivo://ivoa.net/sso#token"/>
 		</interface>
 	</capability>

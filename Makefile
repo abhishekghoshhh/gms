@@ -5,7 +5,6 @@
 IMAGE_NAME = gms-go
 DEFAULT_TAG = latest
 
-RUN_ARGS = IAM_HOST=https://ska-iam.stfc.ac.uk
 
 say_hello:
 	cat ./Makefile
@@ -14,7 +13,7 @@ build:
 	go build cmd/gms/main.go
 
 run:
-	$(RUN_ARGS) go run cmd/gms/main.go
+	go run cmd/gms/main.go
 
 test:
 	go test ./...

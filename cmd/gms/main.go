@@ -6,6 +6,7 @@ import (
 
 	"github.com/abhishekghoshhh/gms/internal/api"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/labstack/gommon/log"
 
 	"github.com/abhishekghoshhh/gms/pkg/config"
@@ -15,6 +16,7 @@ import (
 
 func main() {
 	e := echo.New()
+	e.Use(middleware.Logger())
 
 	// creating an instance of the config
 	cfg := config.New()

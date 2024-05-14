@@ -64,7 +64,7 @@ spec:
     spec:
       containers:
       - name: gms
-        image: abhishek1009/gms-java
+        image: gms-java
         imagePullPolicy: Never
         volumeMounts:
           - name: cadc-registry
