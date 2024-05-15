@@ -55,11 +55,11 @@ spec:
           value: pwd
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "500m"
-          limits:
             memory: "512Mi"
             cpu: "1000m"
+          limits:
+            memory: "1000Mi"
+            cpu: "2000m"
 
 
 ---
@@ -135,11 +135,11 @@ spec:
           value: DEBUG
         resources:
           requests:
-            memory: "1564Mi"
-            cpu: "3000m"
+            memory: "1024Mi"
+            cpu: "1000m"
           limits:
             memory: "1564Mi"
-            cpu: "3000m"
+            cpu: "2000m"
       volumes:
       - name: keystore-volume
         configMap:
